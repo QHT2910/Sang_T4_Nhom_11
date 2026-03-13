@@ -1,0 +1,122 @@
+
+.home {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.home{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+/* card sản phẩm */
+.product-card{
+  background: white;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  transition: 0.3s;
+}
+
+.product-card:hover{
+  transform: translateY(-5px);
+  box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+}
+
+.product-card h3{
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.product-card p{
+  color: red;
+  font-weight: bold;
+}
+.product-card{
+  background:white;
+  padding:20px;
+  border-radius:10px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+.product-card h3{
+  font-size:20px;
+  margin-bottom:10px;
+}
+
+.price{
+  color:red;
+  font-weight:bold;
+}
+
+.desc{
+  color:#555;
+  margin-top:5px;
+}
+
+.stock{
+  color:green;
+}
+
+
+/**/
+/* Header và Footer */
+
+.header{
+    background: white;
+    padding: 20px 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    border-bottom: 1px solid #eee;
+}
+
+/* Logo */
+.logo{
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* Menu */
+.nav{
+    display: flex;
+    gap: 30px;
+}
+
+/* Link */
+.nav-link{
+    text-decoration: none;
+    color: black;
+    font-size: 16px;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+.nav-link:hover{
+    color: #ff4d4f;
+}
+
+
+.Footer {
+    background-color: white;
+    color: black;
+    padding: 20px;
+    text-align: center;
+}
+
+.default-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.main-content {
+    flex: 1;
+    background-color: #f0f0f0;
+    padding: 20px;
+}
+

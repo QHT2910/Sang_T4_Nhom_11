@@ -21,15 +21,22 @@ function Home() {
   }, []);
 
   return (
-    <div>
-      {Array.isArray(products) &&
-        products.map((p) => (
-          <div key={p.product_id}>
-            <h3>{p.name}</h3>
-            <p>{p.price}</p>
-          </div>
-        ))}
-    </div>
+    <div className="home">
+  {Array.isArray(products) &&
+    products.map((p) => (
+      <div className="product-card" key={p.product_id}>
+        <h3>{p.name}</h3>
+
+        <p className="price">{p.price} đ</p>
+
+        <p className="desc">{p.description}</p>
+
+        <p className="stock">
+          Stock: {p.stock}
+        </p>
+      </div>
+    ))}
+</div>
   );
 }
 

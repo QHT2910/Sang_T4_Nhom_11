@@ -16,3 +16,17 @@ export const getProducts = async (req, res) => {
     res.status(500).json({ message: "Error fetching products" });
   }
 };
+
+export const getProductById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const response = await axios.get(
+      `https://plumiest-procivic-jules.ngrok-free.dev/api/products/${id}/`
+    );
+    const product = new Product(response.data);
+    res.json(product);
+  }
+  catch (error) {
+    res.status(500).json({ message: "Error fetching product" });
+  }
+};

@@ -1,7 +1,7 @@
 
 function Footer() {
   return (
-    <footer className="bg-blue-900 text-white">
+    <footer className="Footer">
       <p></p>
     </footer>
   );

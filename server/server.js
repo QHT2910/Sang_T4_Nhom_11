@@ -12,6 +12,7 @@ app.get('/', (req, res) => {
 });
 
 app.use("/api", productRoute);
+app.use("login", productRoute);
 app.listen(PORT, () => {
     console.log(`[SERVER] Server is running on http://localhost:${PORT}`);
 });
