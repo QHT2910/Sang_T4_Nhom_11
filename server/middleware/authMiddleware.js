@@ -1,12 +1,19 @@
-export const authMiddleware = (req, res, next) => {
-   const token = req.headers.authorization;
+import jwt from "jsonwebtoken";
 
-   if (!token) {
+const SECRET_KEY = process.env.SECRET_KEY || "secret-key";
+
+export const authMiddleware = (req, res, next) => {
+   const authHeader = req.headers.authorization;
+
+   if (!authHeader) {
       return res.status(401).json({ message: "No token" });
    }
 
    try {
-      const decoded = jwt.verify(token, process.env.SECRET_KEY);
+      const token = authHeader.startsWith("Bearer ")
+         ? authHeader.slice(7)
+         : authHeader;
+      const decoded = jwt.verify(token, SECRET_KEY);
       req.user = decoded;
       next();
    } catch (err) {
