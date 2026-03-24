@@ -8,7 +8,9 @@ import About from "../pages/about.jsx";
 import Contact from "../pages/Contact.jsx";
 import NotFound from "../pages/NotFound.jsx";
 import Default from "../layout/Default.jsx";
-
+import Admindefault from "../layout/Admindefault.jsx";
+import AdminDashboard from "../pages/admin/AdminDashboard.jsx";
+import AdminProduct from "../pages/admin/AdminProducts.jsx";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -19,9 +21,20 @@ export const router = createBrowserRouter([
       { path: "/login", element: <Login /> },
       { path: "/register", element: <Register /> },
       { path: "/user", element: <UserInfo /> },
-      { path: "/admin", element: <AdminUsers /> },
+      
       { path: "/about", element: <About /> },
       { path: "/contact", element: <Contact /> },
     ],
   },
+  {
+    path: "/admin",
+
+    element: <Admindefault />,
+    errorElement: <NotFound />,
+    children: [
+      { index: true, element: <AdminDashboard /> },
+      { path: "users", element: <AdminUsers /> },
+      { path: "products", element: <AdminProduct /> }
+    ],
+  }
 ]);

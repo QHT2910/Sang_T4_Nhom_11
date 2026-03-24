@@ -1,12 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  createUser,
-  deleteUser,
-  getUsers,
-  updateUser,
-} from "../../services/userAdminService.js";
-
+import userApi from "../../services/userAdminService.js";
 const emptyForm = {
   username: "",
   email: "",
@@ -45,7 +39,7 @@ export default function AdminUsers() {
     setLoading(true);
     setError("");
     try {
-      const res = await getUsers();
+      const res = await userApi.getUsers();
       setUsers(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       setError(
@@ -92,9 +86,9 @@ export default function AdminUsers() {
       }
 
       if (editingId) {
-        await updateUser(editingId, payload);
+        await userApi.updateUser(editingId, payload);
       } else {
-        await createUser(payload);
+        await userApi.createUser(payload);
       }
       resetForm();
       loadUsers();
@@ -110,7 +104,7 @@ export default function AdminUsers() {
   const handleDelete = async (id) => {
     setError("");
     try {
-      await deleteUser(id);
+      await userApi.deleteUser(id);
       loadUsers();
     } catch (err) {
       setError(

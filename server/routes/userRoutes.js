@@ -5,7 +5,7 @@ import {
   getUsers,
   updateUser,
 } from "../controllers/adminUserController.js";
-import { authMiddleware } from "../middleware/authMiddleware.js";
+import { authMiddleware } from "../middleware/authmiddleware.js";
 
 const router = express.Router();
 

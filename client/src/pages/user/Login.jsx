@@ -35,7 +35,7 @@ export default function Login() {
 
       const isSuperUser =
         res?.data?.user?.is_superuser || res?.data?.role === "superadmin";
-      navigate(isSuperUser ? "/admin" : "/");
+      navigate(isSuperUser ? "/admin" : "/" );
     } catch (err) {
       const message =
         err?.response?.data?.message ||

@@ -1,77 +1,93 @@
-
-import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 function Header() {
-    const location = useLocation();
     const navigate = useNavigate();
-    const [isAuthed, setIsAuthed] = useState(false);
-    const [role, setRole] = useState("user");
-    const [initial, setInitial] = useState("U");
-    const [isAdmin, setIsAdmin] = useState(false);
 
-    useEffect(() => {
-        setIsAuthed(Boolean(localStorage.getItem("token")));
-        const storedRole = localStorage.getItem("role") || "user";
-        setRole(storedRole);
-        const userRaw = localStorage.getItem("user");
-        try {
-            const user = userRaw ? JSON.parse(userRaw) : null;
-            const name = user?.username || "U";
-            setInitial(String(name).charAt(0).toUpperCase());
-            const adminRole =
-                storedRole === "superadmin" ||
-                storedRole === "admin" ||
-                user?.is_superuser === true ||
-                user?.is_staff === true;
-            setIsAdmin(adminRole);
-        } catch {
-            setInitial("U");
-            setIsAdmin(storedRole === "superadmin" || storedRole === "admin");
-        }
-    }, [location.pathname]);
+    
+    const token = localStorage.getItem("token");
+    const storedRole = localStorage.getItem("role") || "user";
+
+    let user = null;
+    try {
+        user = JSON.parse(localStorage.getItem("user"));
+    } catch(err) {
+        console.error("Failed to parse user data from localStorage", err);
+    }
+
+    const isAuthed = Boolean(token);
+
+    const isAdmin =
+        storedRole === "admin" ||
+        storedRole === "superadmin" ||
+        user?.is_superuser ||
+        user?.is_staff;
+
+    const initial = (user?.username || "U")[0].toUpperCase();
+
+    const handleLogout = () => {
+        localStorage.clear();
+        navigate("/login");
+    };
 
     return (
         <header className="header">
-            <h1 className="text-2xl font-bold p-4">My App</h1>
-            <nav className="nav">
-                <a href="/" className="nav-link">Home</a>
-                {!isAuthed && <a href="/login" className="nav-link">Login</a>}
-                {!isAuthed && <a href="/register" className="nav-link">Register</a>}
-                <a href="/about" className="nav-link">About</a>
-                <a href="/contact" className="nav-link">Contact</a>
-                {isAuthed && (
-                    <div className="user-menu">
-                        <button className="user-icon" type="button" aria-label="User menu">
-                            <span className="user-avatar">{initial}</span>
-                        </button>
-                        <div className="user-dropdown">
-                            <a href="/user" className="nav-link">
-                                My Profile
-                            </a>
-                            {isAdmin && (
-                                <a href="/admin" className="nav-link">
-                                    Admin Panel
-                                </a>
-                            )}
-                            <button
-                                className="user-logout"
-                                type="button"
-                                onClick={() => {
-                                    localStorage.removeItem("token");
-                                    localStorage.removeItem("role");
-                                    localStorage.removeItem("user");
-                                    setIsAuthed(false);
-                                    navigate("/login");
-                                }}
-                            >
-                                Logout
-                            </button>
-                        </div>
-                    </div>
+          
+          {!isAuthed && (
+            <Link to="/" className="logo">
+                MyApp
+            </Link>
+          )}
+           <nav className="nav">
+    <Link to="/" className="nav-link">Home</Link>
+
+    {!isAuthed && (
+        <>
+            <Link to="/login" className="nav-link">Login</Link>
+            <Link to="/register" className="nav-link">Register</Link>
+        </>
+    )}
+
+    <Link to="/about" className="nav-link">About</Link>
+    <Link to="/contact" className="nav-link">Contact</Link>
+
+   
+   
+
+    {isAuthed && (
+        <div className="user-menu">
+            <button
+                className="user-icon"
+                onClick={() => navigate(isAdmin ? "/admin" : "/user")}
+            >
+                <span className="user-avatar">{initial}</span>
+            </button>
+            
+            <div className="user-dropdown">
+                {!isAdmin && (
+                    <Link to="/user" className="nav-link">
+                        My Profile
+                    </Link>
                 )}
-            </nav>
+
+                {isAdmin && (
+                    <Link to="/admin" className="nav-link">
+                        Admin Dashboard
+                    </Link>
+                )}
+
+                <button
+                    className="user-logout"
+                    onClick={handleLogout}
+                >
+                    Logout
+                </button>
+            </div>
+        </div>
+    )}
+</nav>
+            
         </header>
     );
 }
+
 export default Header;

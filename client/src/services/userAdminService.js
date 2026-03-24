@@ -1,17 +1,9 @@
 import api from "./api.js";
 
-export const getUsers = () => {
-  return api.get("/users");
-};
-
-export const createUser = (data) => {
-  return api.post("/users", data);
-};
-
-export const updateUser = (id, data) => {
-  return api.put(`/users/${id}`, data);
-};
-
-export const deleteUser = (id) => {
-  return api.delete(`/users/${id}`);
-};
+const userApi = {
+  getUsers: () => api.get("/users/"),
+  createUser: (data) => api.post("/users/", data),
+  updateUser: (id, data) => api.put(`/users/${id}/`, data),
+  deleteUser: (id) => api.delete(`/users/${id}/`),
+}
+export default userApi;
