@@ -187,9 +187,7 @@ function Home() {
           </div>
         </div>
       </div>
-      {/* =========================================
-          KHU VỰC 2: NƠI ĐỂ SLIDER SẢN PHẨM (Sẽ làm ở bước sau)
-          ========================================= */}
+      
       <div className="max-w-[1200px] w-full mx-auto px-[10px] mt-[40px]">
         {loading ? (
           <div className="text-center p-10 font-bold">Đang tải sản phẩm...</div>
@@ -198,7 +196,7 @@ function Home() {
         ) : (
           <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-100">
             <h2 className="text-2xl font-bold mb-4">
-              Danh sách sản phẩm tạm thời (Đợi làm Slider)
+              Danh sách sản phẩm 
             </h2>
             <div className="flex flex-wrap gap-4">
               {/* Map sản phẩm tạm thời ra màn hình */}

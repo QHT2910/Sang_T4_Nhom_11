@@ -37,7 +37,7 @@ export const login = async (req, res) => {
         role: user.role,
       },
       SECRET_KEY,
-      { expiresIn: "1h" }
+      { expiresIn: "15m" }
     );
 
     res.json({

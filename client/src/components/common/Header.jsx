@@ -61,7 +61,7 @@ function Header() {
             <ul className="absolute top-full left-0 bg-white min-w-[220px] shadow-[0_5px_15px_rgba(0,0,0,0.2)] rounded-[4px] py-[10px] hidden group-hover:block mt-[5px] border border-[#eee]">
               <li>
                 <Link
-                  to="/category/ao"
+                  to="/category/laptop-may-tinh"
                   className="block px-[20px] py-[10px] text-[#333] text-[14px] font-medium transition-all duration-200 border-b border-dashed border-[#f0f0f0] hover:bg-[#f9f9f9] hover:text-[#e30019] hover:pl-[25px]"
                 >
                   Laptop - Máy tính
@@ -69,7 +69,7 @@ function Header() {
               </li>
               <li>
                 <Link
-                  to="/category/quan"
+                  to="/category/phukien"
                   className="block px-[20px] py-[10px] text-[#333] text-[14px] font-medium transition-all duration-200 border-b border-dashed border-[#f0f0f0] hover:bg-[#f9f9f9] hover:text-[#e30019] hover:pl-[25px]"
                 >
                   Điện thoại - Phụ kiện
@@ -77,7 +77,7 @@ function Header() {
               </li>
               <li>
                 <Link
-                  to="/products"
+                  to="/product"
                   className="block px-[20px] py-[10px] text-[#333] text-[14px] font-medium transition-all duration-200 hover:bg-[#f9f9f9] hover:text-[#e30019] hover:pl-[25px]"
                 >
                   Tất cả sản phẩm

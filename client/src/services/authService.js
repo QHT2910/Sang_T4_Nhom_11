@@ -1,9 +1,7 @@
+
 import api from "./api.js";
-
-export const login = (data) => {
-  return api.post("/login", data);
-};
-
-export const register = (data) => {
-  return api.post("/register", data);
-};
+export const ApiLogin = {
+  Login: (data) => api.post("/auth/login/", data),
+  Register: (data) => api.post("/auth/register/", data)
+}
+export default ApiLogin;

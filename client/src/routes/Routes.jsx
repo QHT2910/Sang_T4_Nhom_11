@@ -11,6 +11,8 @@ import Default from "../layout/Default.jsx";
 import Admindefault from "../layout/Admindefault.jsx";
 import AdminDashboard from "../pages/admin/AdminDashboard.jsx";
 import AdminProduct from "../pages/admin/AdminProducts.jsx";
+import Product from "../pages/user/Product.jsx";
+import ProductDetail from "../pages/user/ProductDetail.jsx";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -24,6 +26,8 @@ export const router = createBrowserRouter([
       
       { path: "/about", element: <About /> },
       { path: "/contact", element: <Contact /> },
+      { path: "/product", element: <Product /> },
+      { path: "/product/:id", element: <ProductDetail /> },
     ],
   },
   {

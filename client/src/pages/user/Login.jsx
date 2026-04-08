@@ -1,10 +1,9 @@
 
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { login as loginRequest } from "../../services/authService.js";
 import { FaUser, FaLock } from "react-icons/fa";
-
-export default function Login() {
+import { ApiLogin } from "../../services/authService";
+export  function Login() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: "",
@@ -20,7 +19,7 @@ export default function Login() {
     e.preventDefault();
     setError("");
     try {
-      const res = await loginRequest({
+      const res = await ApiLogin.Login({
         username: formData.username,
         password: formData.password,
       });
@@ -48,10 +47,10 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-indigo-50 to-purple-100 py-10 px-2">
+    <div className="min-h-screen flex items-center justify-center  from-orange-50 via-indigo-50 to-purple-100 py-10 px-2">
       <div className="w-full max-w-4xl bg-white/80 rounded-3xl shadow-2xl flex flex-col md:flex-row overflow-hidden backdrop-blur-md">
         {/* Left: Welcome */}
-        <div className="flex-1 flex flex-col justify-center items-center p-8 bg-gradient-to-br from-indigo-100 via-orange-100 to-white">
+        <div className="flex-1 flex flex-col justify-center items-center p-8  from-indigo-100 via-orange-100 to-white">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-700 text-white text-xs uppercase tracking-widest font-bold mb-4">
             Xin Chào !
           </div>
@@ -102,14 +101,14 @@ export default function Login() {
             </div>
             {error && <p className="bg-red-100 text-red-700 px-3 py-2 rounded-lg text-sm text-center">{error}</p>}
             <button
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-orange-400 via-pink-400 to-indigo-500 text-white font-bold text-lg shadow hover:scale-[1.02] hover:shadow-lg transition"
+              className="w-full py-3 bg-orange-500 text-white font-semibold rounded-xl hover:bg-orange-600 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-orange-300 text-base"
               type="submit"
             >
               Đăng Nhập
             </button>
             <p className="text-center text-sm text-gray-500 mt-2">
               Chưa có tài khoản?{' '}
-              <Link className="text-orange-500 font-semibold hover:underline" to="/register">
+              <Link to="/register" className="text-orange-500 font-semibold hover:underline" >
                 Đăng Ký
               </Link>
             </p>
@@ -119,3 +118,4 @@ export default function Login() {
     </div>
   );
 }
+export default Login;

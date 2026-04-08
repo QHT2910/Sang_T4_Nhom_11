@@ -1,10 +1,9 @@
 
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { register as registerRequest } from "../../services/authService.js";
 import { FaUser, FaEnvelope, FaLock } from "react-icons/fa";
-
-export default function Register() {
+import { ApiLogin } from "../../services/authService";
+export function Register() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: "",
@@ -21,7 +20,7 @@ export default function Register() {
     e.preventDefault();
     setError("");
     try {
-      await registerRequest({
+      await ApiLogin.Register({
         username: formData.username,
         email: formData.email,
         password: formData.password,
@@ -122,3 +121,4 @@ export default function Register() {
     </div>
   );
 }
+export default Register;
