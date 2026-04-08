@@ -8,7 +8,7 @@ from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
 from rest_framework.decorators import api_view
 # Create your views here.
-class ProductViewSet(viewsets.ReadOnlyModelViewSet):
+class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
@@ -34,3 +34,4 @@ def login(request):
         token, created = Token.objects.get_or_create(user=user)
         return Response({"token": token.key})
     return Response({"error": "Invalid credentials"}, status=400)
+

@@ -8,12 +8,13 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10,decimal_places=2)
     stock = models.IntegerField()
     created_at= models.DateTimeField(auto_now_add=True)
+    image = models.ImageField(upload_to='products/')
 
     def __str__(self):
         return self.name
 
     class Meta:
-        db_table = 'shop_product'
+        db_table = 'product'
 
 # Custom User Manager
 # Custom User Manager
@@ -56,3 +57,4 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.username
+

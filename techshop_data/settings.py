@@ -11,10 +11,10 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import  os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
-
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -79,11 +79,16 @@ WSGI_APPLICATION = "techshop_data.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": 'techshop',
-        "USER":'root',
-        "PASSWORD": '1234',
-        "HOST": '127.0.0.1',
-        "PORT": '3306',
+        "NAME": "techshop",
+        "USER": "admintechshop",
+        "PASSWORD": "@Junkypnn82",
+        "HOST": "nhom11.mysql.database.azure.com",
+        "PORT": "3306",
+        "OPTIONS": {
+            "ssl": {
+                "ca": os.path.join(BASE_DIR, "certs", "DigiCertGlobalRootG2.crt.pem")
+            }
+        },
     }
 }
 
