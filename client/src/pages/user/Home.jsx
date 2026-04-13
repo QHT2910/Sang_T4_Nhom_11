@@ -64,10 +64,10 @@ function Home() {
             {/* Thanh menu ngang (Category Nav) */}
             <div className="bg-white rounded-[10px] flex justify-between px-[5px] shadow-sm">
               <Link
-                to="/"
+                to="/product"
                 className="px-[10px] py-[12px] text-[13px] font-semibold text-[#333] hover:text-[#d70018] whitespace-nowrap transition-colors"
               >
-                Mua Pc Tặng Màn
+                Tất cả sản phẩm
               </Link>
               <Link
                 to="/"
@@ -79,13 +79,13 @@ function Home() {
                 to="/"
                 className="px-[10px] py-[12px] text-[13px] font-semibold text-[#333] hover:text-[#d70018] whitespace-nowrap transition-colors"
               >
-                Mua 1 Tặng 1
+                Pc / Máy tính
               </Link>
               <Link
                 to="/"
                 className="px-[10px] py-[12px] text-[13px] font-semibold text-[#333] hover:text-[#d70018] whitespace-nowrap transition-colors"
               >
-                Mega Sale
+                Laptop
               </Link>
             </div>
 
@@ -187,7 +187,6 @@ function Home() {
           </div>
         </div>
       </div>
-      
       <div className="max-w-[1200px] w-full mx-auto px-[10px] mt-[40px]">
         {loading ? (
           <div className="text-center p-10 font-bold">Đang tải sản phẩm...</div>
@@ -195,19 +194,31 @@ function Home() {
           <div className="text-center p-10 text-red-500">{error}</div>
         ) : (
           <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-100">
-            <h2 className="text-2xl font-bold mb-4">
-              Danh sách sản phẩm 
-            </h2>
+            <h2 className="text-2xl font-bold mb-4">Danh sách sản phẩm</h2>
             <div className="flex flex-wrap gap-4">
-              {/* Map sản phẩm tạm thời ra màn hình */}
+              {/* Map sản phẩm ra màn hình */}
               {products.map((p) => (
                 <div
                   key={p.product_id}
-                  className="border p-4 rounded min-w-[200px]"
+                  className="border p-4 rounded min-w-[200px] w-[200px] hover:shadow-md transition-shadow bg-white flex flex-col"
                 >
-                  <h3 className="font-bold">{p.name}</h3>
-                  <p className="text-red-600">
-                    {Number(p.price).toLocaleString()} đ
+                  {/* Phần hiển thị hình ảnh */}
+                  <div className="w-full h-[160px] mb-3 overflow-hidden rounded">
+                    <img
+                      src={
+                        p.image
+                      } /* ĐỌC LƯU Ý BÊN DƯỚI ĐỂ SỬA CHỖ NÀY CHO ĐÚNG */
+                      alt={p.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+
+                  {/* Phần hiển thị thông tin */}
+                  <h3 className="font-bold text-[#333] text-[14px] line-clamp-2 mb-2 flex-1">
+                    {p.name}
+                  </h3>
+                  <p className="text-red-600 font-bold text-[16px]">
+                    {Number(p.price).toLocaleString("vi-VN")} đ
                   </p>
                 </div>
               ))}
