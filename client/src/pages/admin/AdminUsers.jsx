@@ -1,12 +1,133 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import userApi from "../../services/userAdminService.js";
+
 const emptyForm = {
   username: "",
   email: "",
   password: "",
   role: "user",
 };
+
+const roleMeta = {
+  user: {
+    label: "Nguoi dung",
+    chipClass: "bg-slate-100 text-slate-700",
+  },
+  admin: {
+    label: "Admin",
+    chipClass: "bg-blue-100 text-blue-700",
+  },
+  superadmin: {
+    label: "Super Admin",
+    chipClass: "bg-rose-100 text-rose-700",
+  },
+};
+
+function getRole(user) {
+  if (user.is_superuser) return "superadmin";
+  if (user.is_staff) return "admin";
+  return "user";
+}
+
+function UserTable({ title, description, users, onEdit, onDelete, emptyText }) {
+  return (
+    <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm md:p-6">
+      <div className="flex flex-col gap-2 border-b border-slate-100 pb-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h3 className="text-xl font-bold text-slate-900">{title}</h3>
+          <p className="mt-1 text-sm text-slate-500">{description}</p>
+        </div>
+        <span className="inline-flex w-fit rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+          {users.length} tai khoan
+        </span>
+      </div>
+
+      <div className="mt-5 space-y-3">
+        {users.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center text-sm font-medium text-slate-500">
+            {emptyText}
+          </div>
+        ) : (
+          users.map((user) => {
+            const role = getRole(user);
+            const roleInfo = roleMeta[role];
+
+            return (
+              <div
+                key={user.user_id || user.id}
+                className="grid gap-4 rounded-3xl border border-slate-100 p-4 transition hover:-translate-y-0.5 hover:border-slate-200 hover:shadow-md lg:grid-cols-[1.4fr_1fr_auto]"
+              >
+                <div>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <h4 className="text-lg font-semibold text-slate-900">
+                      {user.username}
+                    </h4>
+                    <span
+                      className={`rounded-full px-3 py-1 text-xs font-bold ${roleInfo.chipClass}`}
+                    >
+                      {roleInfo.label}
+                    </span>
+                    <span
+                      className={`rounded-full px-3 py-1 text-xs font-bold ${
+                        user.is_active
+                          ? "bg-emerald-100 text-emerald-700"
+                          : "bg-amber-100 text-amber-700"
+                      }`}
+                    >
+                      {user.is_active ? "Dang hoat dong" : "Tam khoa"}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-sm text-slate-500">{user.email}</p>
+                </div>
+
+                <div className="grid gap-2 text-sm text-slate-500 sm:grid-cols-2 lg:grid-cols-1">
+                  <div className="rounded-2xl bg-slate-50 px-4 py-3">
+                    <span className="block text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+                      ID
+                    </span>
+                    <span className="mt-1 block font-semibold text-slate-700">
+                      {user.user_id || user.id}
+                    </span>
+                  </div>
+                  <div className="rounded-2xl bg-slate-50 px-4 py-3">
+                    <span className="block text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+                      Quyen han
+                    </span>
+                    <span className="mt-1 block font-semibold text-slate-700">
+                      {role === "superadmin"
+                        ? "Toan quyen he thong"
+                        : role === "admin"
+                          ? "Van hanh & quan ly"
+                          : "Khach hang / tai khoan thuong"}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+                  <button
+                    className="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+                    type="button"
+                    onClick={() => onEdit(user)}
+                  >
+                    Chinh sua
+                  </button>
+                  <button
+                    className="rounded-2xl bg-rose-50 px-4 py-2.5 text-sm font-semibold text-rose-600 transition hover:bg-rose-100"
+                    type="button"
+                    onClick={() => onDelete(user.user_id || user.id)}
+                  >
+                    Xoa
+                  </button>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+    </section>
+  );
+}
 
 export default function AdminUsers() {
   const navigate = useNavigate();
@@ -16,8 +137,10 @@ export default function AdminUsers() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
     const role = localStorage.getItem("role");
     const storedUser = (() => {
       try {
@@ -26,14 +149,22 @@ export default function AdminUsers() {
         return null;
       }
     })();
+
     const isAllowed =
       role === "superadmin" || storedUser?.is_superuser === true;
+
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
     if (!isAllowed) {
       navigate("/user");
       return;
     }
+
     loadUsers();
-  }, []);
+  }, [navigate]);
 
   const loadUsers = async () => {
     setLoading(true);
@@ -43,9 +174,7 @@ export default function AdminUsers() {
       setUsers(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       setError(
-        err?.response?.data?.message ||
-          err?.message ||
-          "Failed to load users"
+        err?.response?.data?.message || err?.message || "Failed to load users"
       );
     } finally {
       setLoading(false);
@@ -57,12 +186,12 @@ export default function AdminUsers() {
   };
 
   const startEdit = (user) => {
-    setEditingId(user.user_id);
+    setEditingId(user.user_id || user.id);
     setFormData({
       username: user.username || "",
       email: user.email || "",
       password: "",
-      role: user.is_superuser ? "superadmin" : user.is_staff ? "admin" : "user",
+      role: getRole(user),
     });
   };
 
@@ -74,6 +203,7 @@ export default function AdminUsers() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
     try {
       const payload = {
         username: formData.username,
@@ -81,6 +211,7 @@ export default function AdminUsers() {
         is_superuser: formData.role === "superadmin",
         is_staff: formData.role === "admin",
       };
+
       if (formData.password) {
         payload.password = formData.password;
       }
@@ -90,13 +221,12 @@ export default function AdminUsers() {
       } else {
         await userApi.createUser(payload);
       }
+
       resetForm();
       loadUsers();
     } catch (err) {
       setError(
-        err?.response?.data?.message ||
-          err?.message ||
-          "Failed to save user"
+        err?.response?.data?.message || err?.message || "Failed to save user"
       );
     }
   };
@@ -105,204 +235,277 @@ export default function AdminUsers() {
     setError("");
     try {
       await userApi.deleteUser(id);
+      if (editingId === id) {
+        resetForm();
+      }
       loadUsers();
     } catch (err) {
       setError(
-        err?.response?.data?.message ||
-          err?.message ||
-          "Failed to delete user"
+        err?.response?.data?.message || err?.message || "Failed to delete user"
       );
     }
   };
 
   const normalizedQuery = query.trim().toLowerCase();
-  const filteredUsers = users.filter((user) => {
-    if (!normalizedQuery) return true;
-    const name = String(user.username || "").toLowerCase();
-    const email = String(user.email || "").toLowerCase();
-    return name.includes(normalizedQuery) || email.includes(normalizedQuery);
-  });
 
-  const stats = {
-    total: users.length,
-    superusers: users.filter((u) => u.is_superuser).length,
-    staff: users.filter((u) => u.is_staff).length,
-    active: users.filter((u) => u.is_active).length,
-  };
+  const filteredUsers = useMemo(
+    () =>
+      users.filter((user) => {
+        const role = getRole(user);
+        const matchesQuery =
+          !normalizedQuery ||
+          String(user.username || "").toLowerCase().includes(normalizedQuery) ||
+          String(user.email || "").toLowerCase().includes(normalizedQuery);
+        const matchesRole = roleFilter === "all" || role === roleFilter;
+        return matchesQuery && matchesRole;
+      }),
+    [users, normalizedQuery, roleFilter]
+  );
+
+  const stats = useMemo(
+    () => ({
+      total: users.length,
+      superusers: users.filter((u) => u.is_superuser).length,
+      staff: users.filter((u) => u.is_staff && !u.is_superuser).length,
+      standard: users.filter((u) => !u.is_staff && !u.is_superuser).length,
+      active: users.filter((u) => u.is_active).length,
+    }),
+    [users]
+  );
+
+  const adminAccounts = filteredUsers.filter(
+    (user) => user.is_staff || user.is_superuser
+  );
+  const userAccounts = filteredUsers.filter(
+    (user) => !user.is_staff && !user.is_superuser
+  );
 
   return (
-    <div className="admin-users admin-users-page">
-      <div className="admin-hero">
-        <div>
-          <div className="admin-kicker">Admin Console</div>
-          <h2>User Management</h2>
-          <p>
-            Create, update, and retire accounts. Superusers control access,
-            staff handle operations.
-          </p>
-        </div>
-        <div className="admin-actions">
-          <div className="admin-search">
-            <input
-              className="admin-input admin-input-search"
-              name="query"
-              placeholder="Search username or email..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
+    <div className="space-y-6">
+      <section className="overflow-hidden rounded-[32px] border border-slate-200 bg-gradient-to-br from-slate-950 via-slate-900 to-orange-950 text-white shadow-xl">
+        <div className="grid gap-8 px-6 py-7 lg:grid-cols-[1.2fr_0.8fr] lg:px-8">
+          <div>
+            <span className="inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-orange-100">
+              Access Control
+            </span>
+            <h1 className="mt-4 text-3xl font-bold leading-tight md:text-4xl">
+              Quan ly tai khoan theo 2 nhom ro rang: admin va nguoi dung.
+            </h1>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300 md:text-base">
+              Ban co the tim nhanh tai khoan, tao moi, cap nhat vai tro va giu
+              bo cuc quan ly gon gang hon cho cac thao tac hang ngay.
+            </p>
           </div>
-          <button className="admin-secondary" type="button" onClick={loadUsers}>
-            Refresh
-          </button>
-        </div>
-      </div>
 
-      <div className="admin-stats">
-        <div className="admin-stat">
-          <div className="admin-stat-label">Total Users</div>
-          <div className="admin-stat-value">{stats.total}</div>
-        </div>
-        <div className="admin-stat">
-          <div className="admin-stat-label">Superusers</div>
-          <div className="admin-stat-value">{stats.superusers}</div>
-        </div>
-        <div className="admin-stat">
-          <div className="admin-stat-label">Staff</div>
-          <div className="admin-stat-value">{stats.staff}</div>
-        </div>
-        <div className="admin-stat">
-          <div className="admin-stat-label">Active</div>
-          <div className="admin-stat-value">{stats.active}</div>
-        </div>
-      </div>
-
-      <div className="admin-card">
-        <div className="admin-card-header">
-          <h3>{editingId ? "Edit User" : "Create User"}</h3>
-          <p>Passwords are only required when creating or resetting a user.</p>
-        </div>
-        <form className="admin-form" onSubmit={handleSubmit}>
-          <input
-            className="admin-input"
-            name="username"
-            placeholder="Username"
-            value={formData.username}
-            onChange={handleChange}
-            required
-          />
-          <input
-            className="admin-input"
-            name="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-          <input
-            className="admin-input"
-            name="password"
-            placeholder={
-              editingId
-                ? "Leave blank to keep current password"
-                : "Password (optional)"
-            }
-            type="password"
-            value={formData.password}
-            onChange={handleChange}
-          />
-          <select
-            className="admin-input"
-            name="role"
-            value={formData.role}
-            onChange={handleChange}
-          >
-            <option value="user">User</option>
-            <option value="admin">Admin (staff)</option>
-            <option value="superadmin">Superuser</option>
-          </select>
-          <div className="admin-form-actions">
-            <button className="login-button" type="submit">
-              {editingId ? "Update User" : "Create User"}
-            </button>
-            {editingId && (
-              <button
-                className="admin-secondary"
-                type="button"
-                onClick={resetForm}
+          <div className="grid gap-3 sm:grid-cols-2">
+            {[
+              { label: "Tong tai khoan", value: stats.total },
+              { label: "Dang hoat dong", value: stats.active },
+              { label: "Admin & super admin", value: stats.superusers + stats.staff },
+              { label: "Nguoi dung thuong", value: stats.standard },
+            ].map((item) => (
+              <div
+                key={item.label}
+                className="rounded-3xl border border-white/10 bg-white/10 p-4 backdrop-blur-sm"
               >
-                Cancel
-              </button>
-            )}
+                <p className="text-sm text-slate-300">{item.label}</p>
+                <p className="mt-3 text-3xl font-bold text-white">{item.value}</p>
+              </div>
+            ))}
           </div>
-        </form>
-      </div>
-
-      {error && <p className="login-error">{error}</p>}
-
-      <div className="admin-table">
-        <div className="admin-row admin-head">
-          <span>ID</span>
-          <span>Username</span>
-          <span>Email</span>
-          <span>Status</span>
-          <span>Role</span>
-          <span>Actions</span>
         </div>
-        {loading ? (
-          <div className="admin-empty">Loading users...</div>
-        ) : filteredUsers.length === 0 ? (
-          <div className="admin-empty">No users match this search.</div>
-        ) : (
-          filteredUsers.map((user, index) => (
-            <div
-              className="admin-row"
-              key={user.user_id || user.id}
-              style={{ animationDelay: `${index * 40}ms` }}
-            >
-              <span data-label="ID">{user.user_id || user.id}</span>
-              <span data-label="Username">{user.username}</span>
-              <span data-label="Email">{user.email}</span>
-              <span data-label="Status">
-                <span
-                  className={`admin-pill ${
-                    user.is_active ? "is-active" : "is-muted"
-                  }`}
-                >
-                  {user.is_active ? "Active" : "Inactive"}
+      </section>
+
+      {error && (
+        <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">
+          {error}
+        </div>
+      )}
+
+      <section className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+        <div className="space-y-6">
+          <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm md:p-6">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-bold text-slate-900">
+                  {editingId ? "Cap nhat tai khoan" : "Tao tai khoan moi"}
+                </h2>
+                <p className="mt-1 text-sm text-slate-500">
+                  Mat khau chi can nhap khi tao moi hoac khi muon reset.
+                </p>
+              </div>
+              {editingId && (
+                <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-amber-700">
+                  Dang chinh sua
                 </span>
-              </span>
-              <span data-label="Role">
-                <span
-                  className={`admin-pill ${
-                    user.is_superuser ? "is-super" : user.is_staff ? "is-staff" : "is-user"
-                  }`}
-                >
-                  {user.is_superuser
-                    ? "Superuser"
-                    : user.is_staff
-                      ? "Staff"
-                      : "User"}
-                </span>
-              </span>
-              <span className="admin-row-actions" data-label="Actions">
-                <button
-                  className="admin-link"
-                  type="button"
-                  onClick={() => startEdit(user)}
-                >
-                  Edit
-                </button>
-                <button
-                  className="admin-link danger"
-                  type="button"
-                  onClick={() => handleDelete(user.user_id || user.id)}
-                >
-                  Delete
-                </button>
-              </span>
+              )}
             </div>
-          ))
-        )}
+
+            <form className="mt-6 grid gap-4" onSubmit={handleSubmit}>
+              <input
+                className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-slate-400 focus:bg-white"
+                name="username"
+                placeholder="Username"
+                value={formData.username}
+                onChange={handleChange}
+                required
+              />
+              <input
+                className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-slate-400 focus:bg-white"
+                name="email"
+                placeholder="Email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
+              <input
+                className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-slate-400 focus:bg-white"
+                name="password"
+                placeholder={
+                  editingId
+                    ? "De trong neu giu nguyen mat khau"
+                    : "Nhap mat khau"
+                }
+                type="password"
+                value={formData.password}
+                onChange={handleChange}
+              />
+              <select
+                className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-slate-400 focus:bg-white"
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+              >
+                <option value="user">Nguoi dung</option>
+                <option value="admin">Admin</option>
+                <option value="superadmin">Super Admin</option>
+              </select>
+
+              <div className="flex flex-wrap gap-3 pt-2">
+                <button
+                  className="rounded-2xl bg-gradient-to-r from-slate-900 to-slate-700 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-300 transition hover:-translate-y-0.5"
+                  type="submit"
+                >
+                  {editingId ? "Luu thay doi" : "Tao tai khoan"}
+                </button>
+                {editingId && (
+                  <button
+                    className="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                    type="button"
+                    onClick={resetForm}
+                  >
+                    Huy
+                  </button>
+                )}
+              </div>
+            </form>
+          </div>
+
+          <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm md:p-6">
+            <div className="flex flex-col gap-4">
+              <div>
+                <h2 className="text-xl font-bold text-slate-900">Bo loc nhanh</h2>
+                <p className="mt-1 text-sm text-slate-500">
+                  Tim theo ten, email hoac loc theo nhom quyen.
+                </p>
+              </div>
+
+              <input
+                className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-slate-400 focus:bg-white"
+                name="query"
+                placeholder="Tim username hoac email..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { value: "all", label: "Tat ca" },
+                  { value: "superadmin", label: "Super Admin" },
+                  { value: "admin", label: "Admin" },
+                  { value: "user", label: "Nguoi dung" },
+                ].map((item) => (
+                  <button
+                    key={item.value}
+                    type="button"
+                    onClick={() => setRoleFilter(item.value)}
+                    className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                      roleFilter === item.value
+                        ? "bg-slate-900 text-white"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                className="w-fit rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                type="button"
+                onClick={loadUsers}
+              >
+                {loading ? "Dang tai..." : "Lam moi du lieu"}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          {[
+            {
+              label: "Super Admin",
+              value: stats.superusers,
+              tone: "from-rose-500/15 to-pink-500/10 border-rose-200",
+            },
+            {
+              label: "Admin",
+              value: stats.staff,
+              tone: "from-blue-500/15 to-sky-500/10 border-blue-200",
+            },
+            {
+              label: "Nguoi dung",
+              value: stats.standard,
+              tone: "from-slate-500/15 to-slate-400/10 border-slate-200",
+            },
+            {
+              label: "Ket qua hien tai",
+              value: filteredUsers.length,
+              tone: "from-amber-500/15 to-orange-500/10 border-amber-200",
+            },
+          ].map((item) => (
+            <div
+              key={item.label}
+              className={`rounded-[28px] border bg-gradient-to-br ${item.tone} p-5 shadow-sm`}
+            >
+              <p className="text-sm font-medium text-slate-500">{item.label}</p>
+              <p className="mt-3 text-4xl font-bold text-slate-900">{item.value}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <div className="grid gap-6 2xl:grid-cols-2">
+        <UserTable
+          title="Khu vuc quan tri"
+          description="Tai khoan co quyen van hanh, quan ly va can duoc theo doi chat che."
+          users={adminAccounts}
+          onEdit={startEdit}
+          onDelete={handleDelete}
+          emptyText={
+            loading ? "Dang tai danh sach quan tri..." : "Khong co tai khoan admin phu hop."
+          }
+        />
+        <UserTable
+          title="Khu vuc nguoi dung"
+          description="Danh sach tai khoan khach hang va tai khoan thuong trong he thong."
+          users={userAccounts}
+          onEdit={startEdit}
+          onDelete={handleDelete}
+          emptyText={
+            loading ? "Dang tai danh sach nguoi dung..." : "Khong co nguoi dung phu hop."
+          }
+        />
       </div>
     </div>
   );
