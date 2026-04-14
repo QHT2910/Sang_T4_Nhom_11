@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaUser, FaLock } from "react-icons/fa";
-import { ApiLogin } from "../../services/authService";
+import  ApiLogin  from "../../services/authService";
 export  function Login() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
