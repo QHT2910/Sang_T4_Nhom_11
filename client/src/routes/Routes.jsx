@@ -13,6 +13,10 @@ import AdminDashboard from "../pages/admin/AdminDashboard.jsx";
 import AdminProduct from "../pages/admin/AdminProducts.jsx";
 import Product from "../pages/user/Product.jsx";
 import ProductDetail from "../pages/user/ProductDetail.jsx";
+import Laptop from "../pages/user/Pagelaptop.jsx";
+import Pc from "../pages/user/Pagepc.jsx";
+import Cart from "../pages/user/Cart.jsx";
+import Tracking from "../pages/user/Tracking.jsx";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -23,11 +27,15 @@ export const router = createBrowserRouter([
       { path: "/login", element: <Login /> },
       { path: "/register", element: <Register /> },
       { path: "/user", element: <UserInfo /> },
-      
+
       { path: "/about", element: <About /> },
       { path: "/contact", element: <Contact /> },
       { path: "/product", element: <Product /> },
       { path: "/product/:id", element: <ProductDetail /> },
+      { path: "/product/laptop", element: <Laptop /> },
+      { path: "/product/pc", element: <Pc /> },
+      {path: "/Cart", element: <Cart />},
+      {path: "/Tracking ", element: <Tracking />},
     ],
   },
   {
@@ -38,7 +46,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <AdminDashboard /> },
       { path: "users", element: <AdminUsers /> },
-      { path: "products", element: <AdminProduct /> }
+      { path: "products", element: <AdminProduct /> },
     ],
-  }
+  },
 ]);
