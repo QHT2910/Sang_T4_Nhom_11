@@ -15,6 +15,8 @@ import Product from "../pages/user/Product.jsx";
 import ProductDetail from "../pages/user/ProductDetail.jsx";
 import Laptop from "../pages/user/Pagelaptop.jsx";
 import Pc from "../pages/user/Pagepc.jsx";
+import Cart from "../pages/user/Cart.jsx";
+import Tracking from "../pages/user/Tracking.jsx";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -32,6 +34,8 @@ export const router = createBrowserRouter([
       { path: "/product/:id", element: <ProductDetail /> },
       { path: "/product/laptop", element: <Laptop /> },
       { path: "/product/pc", element: <Pc /> },
+      {path: "/Cart", element: <Cart />},
+      {path: "/Tracking ", element: <Tracking />},
     ],
   },
   {
