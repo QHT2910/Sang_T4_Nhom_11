@@ -32,15 +32,26 @@ export const getProductById = async (req, res) => {
 
 export const createProduct = async (req, res) => {
   try {
-    const response = await axios.post(BASE_URL, req.body, { headers: NGROK_HEADERS });
+    const formData = new FormData();
+    formData.append("name", req.body.name);
+    formData.append("description", req.body.description);
+    formData.append("price", req.body.price);
+    formData.append("stock", req.body.stock);
+    formData.append("image", req.file); // nếu file được upload từ client
+
+    const response = await axios.post(BASE_URL, formData, {
+      headers: {
+        ...NGROK_HEADERS,
+        "Content-Type": "multipart/form-data"
+      }
+    });
+
     res.status(201).json(response.data);
   } catch (error) {
-    // In lỗi chi tiết để bạn xem ở Terminal Node.js
     console.error("LỖI DJANGO (CREATE):", error.response?.data || error.message);
     res.status(500).json({ message: "Django rejected the data. Check terminal for details." });
   }
-};
-
+}
 export const updateProduct = async (req, res) => {
   const { id } = req.params;
   try {
