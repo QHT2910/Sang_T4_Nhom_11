@@ -138,3 +138,6 @@ CSRF_TRUSTED_ORIGINS = [
     "https://plumiest-procivic-jules.ngrok-free.dev",  # domain ngrok đầy đủ
     "https://*.ngrok.io",
 ]# wildcard cho tất cả subdomain ngrok]
+
+MEDIA_URL = '/products/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'products')

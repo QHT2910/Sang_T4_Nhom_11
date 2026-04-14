@@ -1,8 +1,18 @@
 from django.contrib import admin
 from .models  import Product,User
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.utils.html import format_html
 # Register your models here.
-admin.site.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    list_display = ('name', 'price', 'stock', 'image_preview', 'image_url')
+
+    def image_preview(self, obj):
+        if obj.image:
+            return format_html('<img src="{}" style="max-height:100px;"/>', obj.image.url)
+        return "-"
+    image_preview.short_description = 'Image'
+
+admin.site.register(Product, ProductAdmin)
 @admin.register(User)
 class CustomUserAdmin(BaseUserAdmin):
     fieldsets = (

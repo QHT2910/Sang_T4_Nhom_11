@@ -8,10 +8,14 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10,decimal_places=2)
     stock = models.IntegerField()
     created_at= models.DateTimeField(auto_now_add=True)
-    image = models.ImageField(upload_to='products/')
+    image = models.ImageField(upload_to='',null=True,blank=True)
+    image_url = models.CharField(max_length=255, blank=True, null=True) #url
 
     def __str__(self):
         return self.name
+    def image_display(self):
+        return self.image.url if self.image else None
+
 
     class Meta:
         db_table = 'product'
