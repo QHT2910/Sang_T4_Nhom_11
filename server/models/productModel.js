@@ -6,6 +6,7 @@ class Product {
     this.description = product.description;
     this.price = product.price;
     this.stock = product.stock;
+    this.image = product.image;
   }
 }
 
