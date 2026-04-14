@@ -34,9 +34,12 @@ export  function Login() {
         localStorage.setItem("user", JSON.stringify(res.data.user));
       }
 
-      const isSuperUser =
-        res?.data?.user?.is_superuser || res?.data?.role === "superadmin";
-      navigate(isSuperUser ? "/admin" : "/" );
+      const canAccessAdmin =
+        res?.data?.user?.is_superuser ||
+        res?.data?.user?.is_staff ||
+        res?.data?.role === "superadmin" ||
+        res?.data?.role === "admin";
+      navigate(canAccessAdmin ? "/admin" : "/");
     } catch (err) {
       const message =
         err?.response?.data?.message ||
