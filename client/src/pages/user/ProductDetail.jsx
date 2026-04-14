@@ -96,7 +96,7 @@ export function ProductDetail() {
 
   return (
     <div className="bg-[#f5f5f5] pb-12 pt-6 min-h-screen">
-      <div className="max-w-[1200px] mx-auto px-4">
+      <div className="max-w-1200px mx-auto px-4">
         {/* === BREADCRUMB (Điều hướng) === */}
         <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
           <Link to="/" className="hover:text-blue-600 transition-colors">
@@ -118,7 +118,7 @@ export function ProductDetail() {
           {/* CỘT TRÁI: Gallery Hình ảnh */}
           <div className="flex flex-col gap-4">
             {/* Khung ảnh chính (Tỷ lệ 4:3 hợp với Laptop) */}
-            <div className="w-full aspect-[4/3] bg-gray-50 border border-gray-200 rounded-lg overflow-hidden flex items-center justify-center p-4">
+            <div className="w-full aspect-4/3 bg-gray-50 border border-gray-200 rounded-lg overflow-hidden flex items-center justify-center p-4">
               <img
                 src={mainImage}
                 alt={product.name}
@@ -161,7 +161,7 @@ export function ProductDetail() {
                   ({product.total_reviews} đánh giá)
                 </span>
               </div>
-              <div className="w-[1px] h-4 bg-gray-300"></div>
+              <div className="w-1px h-4 bg-gray-300"></div>
               <div className="text-sm">
                 {product.stock > 0 ? (
                   <span className="text-green-600 font-bold">
