@@ -1,6 +1,6 @@
 import express from "express";
 import { getProducts, getProductById,updateProduct,createProduct,deleteProduct } from "../controllers/productController.js";
-import { authMiddleware } from "../middleware/authmiddleware.js";
+import { authMiddleware } from "../middleware/authMiddleware.js";
 import multer from "multer";
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
