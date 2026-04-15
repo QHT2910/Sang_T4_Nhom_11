@@ -212,7 +212,7 @@ export function Product() {
                       {Number(product.price).toLocaleString()} ₫
                     </span>
                     <Link
-                      to={`/products/${product.id}`}
+                      to={`/product/${product.id}`}
                       className="block w-full text-center px-4 py-2 bg-white border border-blue-600 text-blue-600 rounded hover:bg-blue-600 hover:text-white transition-colors duration-300 text-sm font-medium"
                     >
                       Xem chi tiết
