@@ -9,7 +9,10 @@ class Product(models.Model):
     stock = models.IntegerField()
     created_at= models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to='',null=True,blank=True)
-    image_url = models.CharField(max_length=255, blank=True, null=True) #url
+    image_url = models.CharField(max_length=255, blank=True, null=True)
+    brand = models.CharField(max_length=100)
+    sold = models.IntegerField(default =100 )
+    tag = models.CharField(max_length=100, blank=True, null= True)#url
 
     def __str__(self):
         return self.name
