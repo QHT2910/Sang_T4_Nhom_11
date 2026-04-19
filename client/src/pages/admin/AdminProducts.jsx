@@ -8,6 +8,9 @@
     stock: "",
     image: "",
     image_url: "",
+    brand :"",
+    sold:"",
+    tag:"",
   };
 
   function AdminProduct() {
@@ -74,6 +77,9 @@
         stock: product.stock || "",
         image: product.image || "",
         image_url: product.image_url || "",
+        brand: product.brand || "",
+        sold: product.sold || "",
+        tag: product.tag || "",
       });
       // Cuộn lên đầu form để người dùng biết đang edit
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -85,9 +91,12 @@ const handleSubmit = async (e) => {
   
   const data = new FormData();
   data.append("name", formData.name);
-  data.append("price", formData.price);
+  data.append("price", parseFloat(formData.price));
   data.append("description", formData.description);
-  data.append("stock", formData.stock);
+  data.append("stock", parseInt(formData.stock));
+  data.append("brand", formData.brand);
+  data.append("sold", parseInt(formData.sold));
+  data.append("tag", formData.tag);
 
   // Kiểm tra: Nếu là File (ảnh mới chọn) thì gửi "image", nếu là String (ảnh cũ) thì gửi "image_url"
   if (formData.image instanceof File) {
@@ -174,6 +183,27 @@ const handleSubmit = async (e) => {
                   name="stock"
                   placeholder="Số lượng kho"
                   value={formData.stock}
+                  onChange={handleChange}
+                />
+                <input
+                  className="admin-input"
+                  name="brand"
+                  placeholder="Thương hiệu"
+                  value={formData.brand}
+                  onChange={handleChange}
+                />
+                <input
+                  className="admin-input"
+                  name="sold"
+                  placeholder="Số lượng bán"
+                  value={formData.sold}
+                  onChange={handleChange}
+                />
+                <input
+                  className="admin-input"
+                  name="tag"
+                  placeholder="Tag"
+                  value={formData.tag}
                   onChange={handleChange}
                 />
                 <textarea

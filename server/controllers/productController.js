@@ -41,6 +41,9 @@ export const createProduct = async (req, res) => {
     form.append("description", req.body.description || "");
     form.append("price", req.body.price);
     form.append("stock", req.body.stock || 0);
+    form.append("brand", req.body.brand || "");
+    form.append("sold", req.body.sold || 0);
+    form.append("tag", req.body.tag || "");
 
     // Xử lý tệp tin từ multer (req.file)
     if (req.file) {
