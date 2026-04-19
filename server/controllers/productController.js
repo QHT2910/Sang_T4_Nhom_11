@@ -1,34 +1,26 @@
 import axios from "axios";
 import Product from "../models/productModel.js";
 import FormData from "form-data";
-import { connectDB } from "../config/db.js";
-// XÓA Content-Type ở đây vì nó sẽ thay đổi tùy theo loại request
-// const NGROK_HEADERS = {
-//   "ngrok-skip-browser-warning": "true",
-// };
 
-// const BASE_URL = "https://plumiest-procivic-jules.ngrok-free.dev/api/products/";
+// XÓA Content-Type ở đây vì nó sẽ thay đổi tùy theo loại request
+const NGROK_HEADERS = {
+  "ngrok-skip-browser-warning": "true",
+};
+
+const BASE_URL = "https://plumiest-procivic-jules.ngrok-free.dev/api/products/";
 
 export const getProducts = async (req, res) => {
   try {
-    // // C1: Lấy dữ liệu trực tiếp từ Django qua API
-    // const response = await axios.get(BASE_URL, { 
-    //   headers: { ...NGROK_HEADERS, "Content-Type": "application/json" } 
-    // });
-    // const apiProducts = response.data.map((p) => new Product(p));
-
-    // C2: Lấy dữ liệu từ MySQL (nếu cần đồng bộ hoặc lưu trữ cục bộ)
-    const db = await connectDB();
-    const [rows] = await db.execute("SELECT * FROM product");
-    const dbProducts = rows.map((p) => new Product(p));
-    res.json(dbProducts);
-
-
+    const response = await axios.get(BASE_URL, { 
+      headers: { ...NGROK_HEADERS, "Content-Type": "application/json" } 
+    });
+    const products = response.data.map((p) => new Product(p));
+    res.json(products);
   } catch (error) {
-    console.error("Error fetching products:", error);
     res.status(500).json({ message: "Error fetching products" });
   }
 };
+
 export const getProductById = async (req, res) => {
   const { id } = req.params;
   try {
@@ -44,43 +36,33 @@ export const getProductById = async (req, res) => {
 
 export const createProduct = async (req, res) => {
   try {
-    // Nếu có file upload từ multer
-    const imageUrl = req.file ? `/upload/${req.file.filename}` : null;
+    const form = new FormData();
+    form.append("name", req.body.name);
+    form.append("description", req.body.description || "");
+    form.append("price", req.body.price);
+    form.append("stock", req.body.stock || 0);
 
-    const db = await connectDB();
-    await db.execute(
-      "INSERT INTO product (name, description, price, stock, brand, sold, tag, image) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-      [
-        req.body.name,
-        req.body.description || "",
-        req.body.price,
-        req.body.stock || 0,
-        req.body.brand,
-        req.body.sold || 0,
-        req.body.tag || "",
-        imageUrl
-      ]
-    );
+    // Xử lý tệp tin từ multer (req.file)
+    if (req.file) {
+      form.append("image", req.file.buffer, {
+        filename: req.file.originalname,
+        contentType: req.file.mimetype,
+      });
+    }
 
-    res.status(201).json({
-      message: "Product created successfully",
-      product: {
-        name: req.body.name,
-        description: req.body.description || "",
-        price: req.body.price,
-        stock: req.body.stock || 0,
-        brand: req.body.brand,
-        sold: req.body.sold || 0,
-        tag: req.body.tag || "",
-        image: imageUrl
-      }
+    const response = await axios.post(BASE_URL, form, {
+      headers: {
+        ...form.getHeaders(), // QUAN TRỌNG: Tự tạo Content-Type multipart với boundary
+        ...NGROK_HEADERS,
+      },
     });
+
+    res.status(201).json(response.data);
   } catch (error) {
-    console.error("Error creating product:", error);
-    res.status(500).json({ message: "Error creating product" });
+    console.error("LỖI DJANGO (CREATE):", error.response?.data || error.message);
+    res.status(500).json({ message: "Django rejected the data. Check terminal for details." });
   }
 };
-
 
 export const updateProduct = async (req, res) => {
   const { id } = req.params;
