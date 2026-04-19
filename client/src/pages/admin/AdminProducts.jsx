@@ -3,6 +3,7 @@
 
   const emptyForm = {
     name: "",
+    category_name: "",
     price: "",
     description: "",
     stock: "",
@@ -72,6 +73,7 @@
       setEditingId(product.id);
       setFormData({
         name: product.name || "",
+        category_name: product.category_name || "",
         price: product.price || "",
         description: product.description || "",
         stock: product.stock || "",
@@ -91,6 +93,7 @@ const handleSubmit = async (e) => {
   
   const data = new FormData();
   data.append("name", formData.name);
+  data.append("category_name", formData.category_name);
   data.append("price", parseFloat(formData.price));
   data.append("description", formData.description);
   data.append("stock", parseInt(formData.stock));
@@ -177,6 +180,13 @@ const handleSubmit = async (e) => {
                   value={formData.price}
                   onChange={handleChange}
                   required
+                />
+                <input
+                  className="admin-input"
+                  name="category_name"
+                  placeholder="Danh mục"
+                  value={formData.category_name}
+                  onChange={handleChange}
                 />
                 <input
                   className="admin-input"

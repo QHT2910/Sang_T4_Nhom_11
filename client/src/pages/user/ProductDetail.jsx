@@ -35,8 +35,10 @@ export function ProductDetail() {
     const cartItem = {
       productId: product.id,
       name: product.name,
+      brand: product.brand,
       price: product.price,
       quantity: quantity,
+      category_name: product.category_name,
       image: mainImage,
     };
     console.log("Đã thêm vào giỏ:", cartItem);
@@ -88,6 +90,7 @@ export function ProductDetail() {
                 <i className="fa-solid fa-check-circle mr-1"></i>Còn hàng ({product.stock})
               </span>
             </div>
+            
 
             <div className="mb-6 flex items-end gap-4">
               <span className="text-4xl font-extrabold text-red-600">
