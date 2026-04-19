@@ -1,6 +1,16 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 # Create your models here.
+class Category(models.Model):
+    category_id = models.AutoField(primary_key=True, db_column="CategoryID")
+    category_name = models.CharField(max_length=100, db_column="CategoryName")
+    def __str__(self):
+        return self.category_name
+
+    class Meta:
+        db_table = "category"   # tên bảng trong MySQL
+
+
 class Product(models.Model):
     product_id =models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
@@ -13,7 +23,7 @@ class Product(models.Model):
     brand = models.CharField(max_length=100)
     sold = models.IntegerField(default =100 )
     tag = models.CharField(max_length=100, blank=True, null= True)#url
-
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="products", db_column="CategoryID")
     def __str__(self):
         return self.name
     def image_display(self):
