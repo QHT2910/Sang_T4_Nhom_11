@@ -133,7 +133,7 @@ function Header() {
               {/* Nút Tra cứu đơn hàng */}
               <li>
                 <Link
-                  to={isAuthed ? "/donhang_cuatoi" : "/login"}
+                  to={isAuthed ? "/donhang_cuatoi" : "/pay"}
                   className="flex items-center gap-[8px] text-white px-[8px] py-[5px] rounded-[5px] hover:bg-white/15 transition-colors"
                 >
                   <div className="relative flex">
