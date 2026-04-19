@@ -7,10 +7,16 @@ from rest_framework.decorators import action
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
 from rest_framework.decorators import api_view
+from rest_framework.permissions import AllowAny
+from rest_framework.authentication import SessionAuthentication
+
+
 # Create your views here.
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    permission_classes = [AllowAny]
+    authentication_classes = []
 
     def get_serializer_context(self):
         return {'request': self.request}
