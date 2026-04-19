@@ -1,8 +1,9 @@
 from django.contrib import admin
-from .models  import Product,User
+from .models  import Product,User,Category
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.html import format_html
 # Register your models here.
+admin.site.register(Category)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('name', 'price', 'stock', 'image_preview', 'image_url')
 
