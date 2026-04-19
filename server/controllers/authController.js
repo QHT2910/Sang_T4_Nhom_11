@@ -2,10 +2,10 @@ import axios from "axios";
 import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
 
-const SECRET_KEY = "secret-key";
+const SECRET_KEY = process.env.SECRET_KEY || "secret-key";
 
 const API_URL =
-  "https://plumiest-procivic-jules.ngrok-free.dev/api/user/" || SECRET_KEY;
+  "https://plumiest-procivic-jules.ngrok-free.dev/api/user";
 ;
 
 export const login = async (req, res) => {
