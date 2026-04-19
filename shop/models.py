@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseU
 # Create your models here.
 class Category(models.Model):
     category_id = models.AutoField(primary_key=True, db_column="CategoryID")
-    category_name = models.CharField(max_length=100, db_column="CategoryName")
+    category_name = models.CharField(max_length=100, db_column="CategoryName",unique=True)
     def __str__(self):
         return self.category_name
 
@@ -21,7 +21,6 @@ class Product(models.Model):
     image = models.ImageField(upload_to='',null=True,blank=True)
     image_url = models.CharField(max_length=255, blank=True, null=True)
     brand = models.CharField(max_length=100)
-    sold = models.IntegerField(default =100 )
     tag = models.CharField(max_length=100, blank=True, null= True)#url
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="products", db_column="CategoryID")
     def __str__(self):

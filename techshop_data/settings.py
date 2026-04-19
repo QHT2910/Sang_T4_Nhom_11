@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-6mnh7_m#s0@!n#7^=-elzh=$xfzz$wd#a_o!686)7#9jfj2#3l
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["plumiest-procivic-jules.ngrok-free.dev", "127.0.0.1",".ngrok.io"]
+ALLOWED_HOSTS = ["plumiest-procivic-jules.ngrok-free.dev", "127.0.0.1",".ngrok.io","*.azurewebsites.net"]
 
 
 # Application definition

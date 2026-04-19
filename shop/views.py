@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import viewsets, status
-from .models import Product, User
-from .serializers import ProductSerializer, UserSerializer
+from .models import Product, User, Category
+from .serializers import ProductSerializer, UserSerializer, CategorySerializer
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.authtoken.models import Token
@@ -10,6 +10,14 @@ from rest_framework.decorators import api_view
 from rest_framework.permissions import AllowAny
 from rest_framework.authentication import SessionAuthentication
 
+class CategoryViewset(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [AllowAny]
+    authentication_classes = [SessionAuthentication]
+
+    def get_serializer_context(self):
+        return {'request': self.request}
 
 # Create your views here.
 class ProductViewSet(viewsets.ModelViewSet):
