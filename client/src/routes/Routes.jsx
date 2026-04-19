@@ -17,6 +17,8 @@ import Laptop from "../pages/user/Pagelaptop.jsx";
 import Pc from "../pages/user/Pagepc.jsx";
 import ThanhToan from "../pages/user/PagePay.jsx";
 import ChinhSach from "../pages/user/PageChinhsach.jsx";
+import Cart from "../pages/user/Cart.jsx";
+import Tracking from "../pages/user/Tracking.jsx";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -36,6 +38,8 @@ export const router = createBrowserRouter([
       { path: "/product/pc", element: <Pc /> },
       { path: "/pay", element: <ThanhToan /> },
       { path: "/chinhsach", element: <ChinhSach /> },
+      { path: "/Cart", element: <Cart /> },
+      {path: "/tracking", element: <Tracking />},
     ],
   },
   {

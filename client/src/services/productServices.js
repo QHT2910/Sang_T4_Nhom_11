@@ -6,5 +6,6 @@ const productApi = {
   createProduct: (data) => api.post("/products/", data),
   updateProduct: (id, data) => api.patch(`/products/${id}/`, data),
   deleteProduct: (id) => api.delete(`/products/${id}/`),
+  getCategories: () => api.get("/categories/"),
 }
 export default productApi;
