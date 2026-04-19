@@ -83,7 +83,10 @@ function Header() {
 
               {/* Tra cứu đơn hàng */}
               <li>
-                <Link to={isAuthed ? "/Tracking" : "/login"} className="flex items-center gap-[8px] text-white px-[8px] py-[5px] rounded-[5px] hover:bg-white/15 transition-colors">
+                <Link
+                  to={isAuthed ? "/donhang_cuatoi" : "/pay"}
+                  className="flex items-center gap-[8px] text-white px-[8px] py-[5px] rounded-[5px] hover:bg-white/15 transition-colors"
+                >
                   <div className="relative flex">
                     <svg className="w-[24px] h-[24px] stroke-white fill-none shrink-0" viewBox="0 0 24 24" strokeWidth="2">
                       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>

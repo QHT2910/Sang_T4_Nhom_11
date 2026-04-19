@@ -14,6 +14,7 @@ export const getProducts = async (req, res) => {
     const response = await axios.get(BASE_URL, { 
       headers: { ...NGROK_HEADERS, "Content-Type": "application/json" } 
     });
+    console.log("Django trả về:", response.data[0])
     const products = response.data.map((p) => new Product(p));
     res.json(products);
   } catch (error) {
@@ -27,6 +28,15 @@ export const getProductById = async (req, res) => {
     const response = await axios.get(`${BASE_URL}${id}/`, { 
       headers: { ...NGROK_HEADERS, "Content-Type": "application/json" } 
     });
+    // Tìm id theo tên người dùng nhập
+    const categoryName = req.body.category_name;
+    const category = catResponse.data.find(
+      (c) => c.category_name.toLowerCase() === String(categoryName).toLowerCase()
+    );
+
+    if (!category) {
+      return res.status(400).json({ message: `Không tìm thấy danh mục: ${categoryName}` });
+    }
     const product = new Product(response.data);
     res.json(product);
   } catch (error) {
@@ -38,9 +48,13 @@ export const createProduct = async (req, res) => {
   try {
     const form = new FormData();
     form.append("name", req.body.name);
+    form.append("category", req.body.category_name || ""); // Thêm category nếu cần
     form.append("description", req.body.description || "");
     form.append("price", req.body.price);
     form.append("stock", req.body.stock || 0);
+    form.append("brand", req.body.brand || "");
+    form.append("sold", req.body.sold || 0);
+    form.append("tag", req.body.tag || "");
 
     // Xử lý tệp tin từ multer (req.file)
     if (req.file) {

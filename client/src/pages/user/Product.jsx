@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import productApi from "../../services/productServices";
 import banerngang1 from "../../assets/images/gearvn-pc-gvn-t11-topbar.png";
 
+
 export function Product() {
   const [products, setProducts] = useState([]);
 
@@ -10,6 +11,8 @@ export function Product() {
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedPriceId, setSelectedPriceId] = useState("all"); // State lưu mốc giá được chọn
+  const [categories, setCategory] = useState([]);
+  const [brands, setBrands] = useState([]);
 
   // --- ĐỊNH NGHĨA CÁC MỐC GIÁ ---
   const priceBrackets = [
@@ -32,6 +35,20 @@ export function Product() {
     loadProducts();
   }, []);
 
+  useEffect(() => {
+    if (products.length > 0) {
+      const uniqueCategories = [...new Set(products.map(p => p.category_name).filter(Boolean))];
+      setCategory(uniqueCategories);
+    }
+  }, [products]);
+
+  useEffect(() =>{
+    if (products.length > 0) {
+    const uniqueBrands = [...new Set(products.map(p => p.brand).filter(Boolean))];
+    setBrands(uniqueBrands);
+    }
+  }, [products]);
+
   // Xử lý khi tick chọn thương hiệu
   const handleBrandChange = (brand) => {
     setSelectedBrands((prev) =>
@@ -47,7 +64,7 @@ export function Product() {
 
     // Lọc danh mục
     const matchesCategory =
-      selectedCategory === "" || product.category === selectedCategory;
+      selectedCategory === "" || product.category_name === selectedCategory;
 
     // Lọc mốc giá
     const currentPriceBracket = priceBrackets.find(
@@ -85,32 +102,27 @@ export function Product() {
               <label className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors">
                 <input
                   type="radio"
-                  name="category"
+                  name="category_name"
                   onChange={() => setSelectedCategory("")}
-                  defaultChecked
+                  checked={selectedCategory === ""}  // ← đồng bộ với state
                   className="w-4 h-4 text-blue-600"
                 />
                 <span className="text-sm">Tất Cả</span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors">
-                <input
-                  type="radio"
-                  name="category"
-                  onChange={() => setSelectedCategory("Laptop")}
-                  className="w-4 h-4 text-blue-600"
-                />
-                <span className="text-sm">Laptop</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors">
-                <input
-                  type="radio"
-                  name="category"
-                  onChange={() => setSelectedCategory("PC")}
-                  className="w-4 h-4 text-blue-600"
-                />
-                <span className="text-sm">PC / Máy Tính Bàn</span>
-              </label>
-            </div>
+                {/* Render từ database */}
+                {categories.map((cat) => (
+                  <label key={cat} className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors">
+                    <input
+                      type="radio"
+                      name="category_name"
+                      onChange={() => setSelectedCategory(cat)}
+                      checked={selectedCategory === cat}
+                      className="w-4 h-4 text-blue-600"
+                    />
+                    <span className="text-sm">{cat}</span>
+                  </label>
+                ))}
+              </div>
           </div>
 
           {/* Lọc Mốc Giá (MỚI) */}
@@ -144,7 +156,7 @@ export function Product() {
               Thương Hiệu
             </h3>
             <div className="grid grid-cols-2 gap-2">
-              {["Acer", "Apple", "Asus", "Dell", "HP", "Lenovo", "MSI"].map(
+              {brands.map(
                 (brand) => (
                   <label
                     key={brand}
@@ -152,8 +164,10 @@ export function Product() {
                   >
                     <input
                       type="checkbox"
+                      name="brand"
                       onChange={() => handleBrandChange(brand)}
-                      className="w-4 h-4 text-blue-600 rounded border-gray-300"
+                      checked={selectedBrands.includes(brand)}
+                      className="w-4 h-4 text-blue-600"
                     />
                     <span className="text-sm text-gray-700">{brand}</span>
                   </label>
