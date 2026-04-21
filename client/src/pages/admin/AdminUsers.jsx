@@ -11,11 +11,11 @@ const emptyForm = {
 
 const roleMeta = {
   user: {
-    label: "Nguoi dung",
+    label: "Người dùng",
     chipClass: "bg-slate-100 text-slate-700",
   },
   admin: {
-    label: "Admin",
+    label: "Staff",
     chipClass: "bg-blue-100 text-blue-700",
   },
   superadmin: {
@@ -61,7 +61,7 @@ function UserTable({
           <p className="mt-1 text-sm text-slate-500">{description}</p>
         </div>
         <span className="inline-flex w-fit rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-          {users.length} tai khoan
+          {users.length} tài khoản
         </span>
       </div>
 
@@ -115,14 +115,14 @@ function UserTable({
                   </div>
                   <div className="rounded-2xl bg-slate-50 px-4 py-3">
                     <span className="block text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                      Quyen han
+                      Quyền hạn
                     </span>
                     <span className="mt-1 block font-semibold text-slate-700">
                       {role === "superadmin"
-                        ? "Toan quyen he thong"
+                        ? "Toàn quyền hệ thống"
                         : role === "admin"
-                          ? "Van hanh & quan ly"
-                          : "Khach hang / tai khoan thuong"}
+                          ? "Vận hành & quản lý"
+                          : "Khách hàng / tài khoản thường"}
                     </span>
                   </div>
                 </div>
@@ -133,7 +133,7 @@ function UserTable({
                     type="button"
                     onClick={() => onEdit(user)}
                   >
-                    Chinh sua
+                    Chỉnh sửa
                   </button>
                   {onDelete && (
                     <button
@@ -147,13 +147,13 @@ function UserTable({
                       disabled={!canDelete}
                       title={
                         canDelete
-                          ? "Xoa tai khoan"
+                          ? "Xóa tài khoản"
                           : role === "superadmin"
-                            ? "Khong the xoa tai khoan superadmin"
-                            : "Ban khong co quyen xoa tai khoan"
+                            ? "Không thể xóa tài khoản superadmin"
+                            : "Bạn không có quyền xóa tài khoản"
                       }
                     >
-                      Xoa
+                      Xóa
                     </button>
                   )}
                 </div>
@@ -254,8 +254,8 @@ export default function AdminUsers() {
     if (!canDeleteUser(user)) {
       setError(
         getRole(user) === "superadmin"
-          ? "Khong the xoa tai khoan superadmin."
-          : "Ban khong co quyen xoa tai khoan."
+          ? "Không thể xóa tài khoản superadmin."
+          : "Bạn không có quyền xóa tài khoản."
       );
       return;
     }
@@ -348,20 +348,16 @@ export default function AdminUsers() {
               Access Control
             </span>
             <h1 className="mt-4 text-3xl font-bold leading-tight md:text-4xl">
-              Quan ly tai khoan theo 2 nhom ro rang: admin va nguoi dung.
+              Quản lý tài khoản
             </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300 md:text-base">
-              Ban co the tim nhanh tai khoan, tao moi, cap nhat vai tro va giu
-              bo cuc quan ly gon gang hon cho cac thao tac hang ngay.
-            </p>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
             {[
-              { label: "Tong tai khoan", value: stats.total },
-              { label: "Dang hoat dong", value: stats.active },
-              { label: "Admin & super admin", value: stats.superusers + stats.staff },
-              { label: "Nguoi dung thuong", value: stats.standard },
+              { label: "Tổng tài khoản", value: stats.total },
+              { label: "Đang hoạt động", value: stats.active },
+              { label: "Super Admin & staff", value: stats.superusers + stats.staff },
+              { label: "Người dùng thường", value: stats.standard },
             ].map((item) => (
               <div
                 key={item.label}
@@ -390,15 +386,15 @@ export default function AdminUsers() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-xl font-bold text-slate-900">
-                  {editingId ? "Cap nhat tai khoan" : "Tao tai khoan moi"}
+                  {editingId ? "Cập nhật tài khoản" : "Tạo tài khoản mới"}
                 </h2>
                 <p className="mt-1 text-sm text-slate-500">
-                  Mat khau chi can nhap khi tao moi hoac khi muon reset.
+                  Mật khẩu chỉ cần nhập khi tạo mới hoặc khi muốn reset.
                 </p>
               </div>
               {editingId && (
                 <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-amber-700">
-                  Dang chinh sua
+                  Đang chỉnh sửa
                 </span>
               )}
             </div>
@@ -434,8 +430,8 @@ export default function AdminUsers() {
                 name="password"
                 placeholder={
                   editingId
-                    ? "De trong neu giu nguyen mat khau"
-                    : "Nhap mat khau"
+                    ? "Để trống nếu không muốn thay đổi mật khẩu"
+                    : "Nhập mật khẩu"
                 }
                 type="password"
                 value={formData.password}
@@ -450,8 +446,8 @@ export default function AdminUsers() {
                 value={formData.role}
                 onChange={handleChange}
               >
-                <option value="user">Nguoi dung</option>
-                <option value="admin">Admin</option>
+                <option value="user">Người dùng</option>
+                <option value="admin">Staff</option>
                 <option value="superadmin">Super Admin</option>
               </select>
               </label>
@@ -461,7 +457,7 @@ export default function AdminUsers() {
                   className="rounded-2xl bg-gradient-to-r from-slate-900 to-slate-700 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-300 transition hover:-translate-y-0.5"
                   type="submit"
                 >
-                  {editingId ? "Luu thay doi" : "Tao tai khoan"}
+                  {editingId ? "Lưu thay đổi" : "Tạo tài khoản"}
                 </button>
                 {editingId && (
                   <button
@@ -469,7 +465,7 @@ export default function AdminUsers() {
                     type="button"
                     onClick={resetForm}
                   >
-                    Huy
+                    Hủy
                   </button>
                 )}
               </div>
@@ -479,26 +475,26 @@ export default function AdminUsers() {
           <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm md:p-6">
             <div className="flex flex-col gap-4">
               <div>
-                <h2 className="text-xl font-bold text-slate-900">Bo loc nhanh</h2>
+                <h2 className="text-xl font-bold text-slate-900">Bộ lọc nhanh</h2>
                 <p className="mt-1 text-sm text-slate-500">
-                  Tim theo ten, email hoac loc theo nhom quyen.
+                  Tìm theo tên, email hoặc lọc theo nhóm quyền.
                 </p>
               </div>
 
               <input
                 className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-slate-400 focus:bg-white"
                 name="query"
-                placeholder="Tim username hoac email..."
+                placeholder="Tìm username hoặc email..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
 
               <div className="flex flex-wrap gap-2">
                 {[
-                  { value: "all", label: "Tat ca" },
+                  { value: "all", label: "Tất cả" },
                   { value: "superadmin", label: "Super Admin" },
-                  { value: "admin", label: "Admin" },
-                  { value: "user", label: "Nguoi dung" },
+                  { value: "admin", label: "Staff" },
+                  { value: "user", label: "Người dùng" },
                 ].map((item) => (
                   <button
                     key={item.value}
@@ -520,7 +516,7 @@ export default function AdminUsers() {
                 type="button"
                 onClick={loadUsers}
               >
-                {loading ? "Dang tai..." : "Lam moi du lieu"}
+                {loading ? "Đang tải..." : "Làm mới dữ liệu"}
               </button>
             </div>
           </div>
@@ -534,17 +530,17 @@ export default function AdminUsers() {
               tone: "from-rose-500/15 to-pink-500/10 border-rose-200",
             },
             {
-              label: "Admin",
+              label: "Staff",
               value: stats.staff,
               tone: "from-blue-500/15 to-sky-500/10 border-blue-200",
             },
             {
-              label: "Nguoi dung",
+              label: "Người dùng",
               value: stats.standard,
               tone: "from-slate-500/15 to-slate-400/10 border-slate-200",
             },
             {
-              label: "Ket qua hien tai",
+              label: "Kết quả hiện tại",
               value: filteredUsers.length,
               tone: "from-amber-500/15 to-orange-500/10 border-amber-200",
             },
@@ -562,25 +558,25 @@ export default function AdminUsers() {
 
       <div className="grid gap-6 2xl:grid-cols-2">
         <UserTable
-          title="Khu vuc quan tri"
-          description="Tai khoan co quyen van hanh, quan ly va can duoc theo doi chat che."
+          title="Khu vực quản trị"
+          description="Tài khoản có quyền, quản lý và cần được theo dõi chặt chẽ."
           users={adminAccounts}
           onEdit={startEdit}
           onDelete={currentRole === "superadmin" ? handleDelete : null}
           canDeleteUser={canDeleteUser}
           emptyText={
-            loading ? "Dang tai danh sach quan tri..." : "Khong co tai khoan admin phu hop."
+            loading ? "Đang tải danh sách quản trị..." : "Không có tài khoản admin phù hợp."
           }
         />
         <UserTable
-          title="Khu vuc nguoi dung"
-          description="Danh sach tai khoan khach hang va tai khoan thuong trong he thong."
+          title="Khu vực người dùng"
+          description="Danh sách tài khoản khách hàng và tài khoản thường trong hệ thống."
           users={userAccounts}
           onEdit={startEdit}
           onDelete={currentRole === "superadmin" ? handleDelete : null}
           canDeleteUser={canDeleteUser}
           emptyText={
-            loading ? "Dang tai danh sach nguoi dung..." : "Khong co nguoi dung phu hop."
+            loading ? "Đang tải danh sách người dùng..." : "Không có người dùng phù hợp."
           }
         />
       </div>
