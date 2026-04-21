@@ -17,6 +17,10 @@ import Laptop from "../pages/user/Pagelaptop.jsx";
 import Pc from "../pages/user/Pagepc.jsx";
 import ThanhToan from "../pages/user/PagePay.jsx";
 import ChinhSach from "../pages/user/PageChinhsach.jsx";
+import Cart from "../pages/user/Cart.jsx";
+import Tracking from "../pages/user/Tracking.jsx";
+import ProtectedRoute from "../components/ProtectedRoute.jsx";
+import AdminOrder from "../pages/admin/AdminOrder.jsx";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -26,7 +30,10 @@ export const router = createBrowserRouter([
       { index: true, element: <Home /> },
       { path: "/login", element: <Login /> },
       { path: "/register", element: <Register /> },
-      { path: "/user", element: <UserInfo /> },
+
+      { path: "/user", element:(
+        <ProtectedRoute><UserInfo /></ProtectedRoute>)
+         },
 
       { path: "/about", element: <About /> },
       { path: "/contact", element: <Contact /> },
@@ -36,17 +43,26 @@ export const router = createBrowserRouter([
       { path: "/product/pc", element: <Pc /> },
       { path: "/pay", element: <ThanhToan /> },
       { path: "/chinhsach", element: <ChinhSach /> },
+      { path: "/Cart", element: <Cart /> },
+      {path: "/tracking", element: <Tracking />},
+      {path: "/userinfo", element:(
+        <ProtectedRoute><UserInfo /></ProtectedRoute>)
+         }
     ],
   },
   {
     path: "/admin",
 
-    element: <Admindefault />,
+    element: (
+    <ProtectedRoute allowedRoles={["admin", "superadmin"]}>
+    <Admindefault />
+    </ProtectedRoute>),
     errorElement: <NotFound />,
     children: [
       { index: true, element: <AdminDashboard /> },
       { path: "users", element: <AdminUsers /> },
       { path: "products", element: <AdminProduct /> },
+      { path: "orders", element: <AdminOrder /> },
     ],
   },
 ]);

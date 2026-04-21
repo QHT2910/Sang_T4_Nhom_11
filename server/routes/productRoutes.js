@@ -1,5 +1,5 @@
 import express from "express";
-import { getProducts, getProductById,updateProduct,createProduct,deleteProduct } from "../controllers/productController.js";
+import { getProducts, getProductById,updateProduct,createProduct,deleteProduct,getCategories } from "../controllers/productController.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 import multer from "multer";
 const router = express.Router();
@@ -9,5 +9,5 @@ router.get("/products/:id", getProductById);
 router.post("/products", authMiddleware,upload.single("image"), createProduct);
 router.patch("/products/:id", authMiddleware, upload.single("image"), updateProduct);
 router.delete("/products/:id", authMiddleware, deleteProduct);
-
+router.get("/categories", getCategories);
 export default router;

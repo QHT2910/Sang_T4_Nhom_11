@@ -16,6 +16,11 @@ const adminNavItems = [
     label: "San pham",
     description: "Kho va danh muc",
   },
+  {
+    to: "/admin/orders",
+    label: "Quan ly don hang",
+    description: "Don hang va trang thai",
+  }
 ];
 
 function Admindefault() {
