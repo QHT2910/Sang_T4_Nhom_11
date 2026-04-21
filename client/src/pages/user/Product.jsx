@@ -5,7 +5,13 @@ import banerngang1 from "../../assets/images/gearvn-pc-gvn-t11-topbar.png";
 
 const normalizeCategory = (value) => String(value || "").trim().toLowerCase();
 const getProductId = (product) => product?.id || product?.product_id;
-
+const priceBrackets = [
+    { id: "all", label: "Tất cả mức giá", min: 0, max: Infinity },
+    { id: "duoi-10", label: "Dưới 10 triệu", min: 0, max: 10000000 },
+    { id: "10-20", label: "từ 10-20 triệu", min: 10000001, max: 20000000 },
+    { id: "20-30", label: "Từ 20 - 30 triệu", min: 20000001, max: 30000000 },
+    { id: "tren-30", label: "Trên 30 triệu", min: 30000001, max: Infinity },
+  ];
 function Product() {
   const [products, setProducts] = useState([]);
   const [selectedBrands, setSelectedBrands] = useState([]);
@@ -13,13 +19,7 @@ function Product() {
   const [selectedPriceId, setSelectedPriceId] = useState("all");
   const [searchParams] = useSearchParams();
 
-  const priceBrackets = [
-    { id: "all", label: "Tất cả mức giá", min: 0, max: Infinity },
-    { id: "duoi-10", label: "Dưới 10 triệu", min: 0, max: 10000000 },
-    { id: "10-20", label: "từ 10-20 triệu", min: 10000001, max: 20000000 },
-    { id: "20-30", label: "Từ 20 - 30 triệu", min: 20000001, max: 30000000 },
-    { id: "tren-30", label: "Trên 30 triệu", min: 30000001, max: Infinity },
-  ];
+  
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -38,21 +38,18 @@ function Product() {
     () => [...new Set(products.map((p) => p.category_name).filter(Boolean))],
     [products]
   );
-
   const querySelectedCategory = useMemo(() => {
-    const requestedCategory = searchParams.get("category");
+  const requestedCategory = searchParams.get("category");
+  if (!requestedCategory || categories.length === 0) return "";
 
-    if (!requestedCategory || categories.length === 0) {
-      return "";
-    }
+  return (
+    categories.find(
+      (category) =>
+        normalizeCategory(category) === normalizeCategory(requestedCategory)
+    ) || ""
+  );
+}, [categories, searchParams]); // normalizeCategory ở ngoài nên thường không cần, nhưng nếu vẫn bị gạch vàng hãy thêm vào.
 
-    return (
-      categories.find(
-        (category) =>
-          normalizeCategory(category) === normalizeCategory(requestedCategory)
-      ) || ""
-    );
-  }, [categories, searchParams]);
 
   const selectedCategory = manualSelectedCategory || querySelectedCategory;
 
@@ -68,25 +65,39 @@ function Product() {
         : [...prev, brand]
     );
   };
-
+  
   const handleCategoryChange = (category) => {
     setManualSelectedCategory(category);
   };
+  const searchQuery = useMemo(() => {
+    return searchParams.get("search") || "";
+  }, [searchParams]);
 
-  const filteredProducts = useMemo(() => {
-    return products.filter((product) => {
-      const matchesBrand =
-        selectedBrands.length === 0 || selectedBrands.includes(product.brand);
-      const matchesCategory =
-        selectedCategory === "" || product.category_name === selectedCategory;
-      const bracket = priceBrackets.find((b) => b.id === selectedPriceId);
-      const matchesPrice =
-        Number(product.price) >= bracket.min &&
-        Number(product.price) <= bracket.max;
 
-      return matchesBrand && matchesCategory && matchesPrice;
-    });
-  }, [priceBrackets, products, selectedBrands, selectedCategory, selectedPriceId]);
+// 2. filteredProducts: Đảm bảo lọc search không bị "kẹt" bởi category cũ
+const filteredProducts = useMemo(() => {
+  return products.filter((product) => {
+    // Lọc theo tên (Search)
+    const matchesSearch = searchQuery === "" || 
+      (product.name && product.name.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    // Lọc theo thương hiệu
+    const matchesBrand =
+      selectedBrands.length === 0 || selectedBrands.includes(product.brand);
+    
+    // Lọc theo danh mục
+    const matchesCategory =
+      selectedCategory === "" || product.category_name === selectedCategory;
+    
+    // Lọc theo giá
+    const bracket = priceBrackets.find((b) => b.id === selectedPriceId) || priceBrackets[0];
+    const matchesPrice =
+      Number(product.price) >= bracket.min &&
+      Number(product.price) <= bracket.max;
+
+    return matchesSearch && matchesBrand && matchesCategory && matchesPrice;
+  });
+}, [products, searchQuery, selectedBrands, selectedCategory, selectedPriceId]);
 
   return (
     <div className="w-full max-w-[1200px] mx-auto mb-6 px-4 md:px-0">

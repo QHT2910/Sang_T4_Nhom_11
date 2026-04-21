@@ -16,6 +16,7 @@ function getCartCount() {
 
 function Header() {
   const navigate = useNavigate();
+const [searchTerm, setSearchTerm] = useState("");
   const token = localStorage.getItem("token");
   const storedRole = localStorage.getItem("role") || "user";
   const [isOpen, setIsOpen] = useState(false);
@@ -33,6 +34,14 @@ function Header() {
     console.error("Failed to parse user data from localStorage", err);
   }
 
+  // Trong Header.jsx
+const handleSearch = (e) => {
+  e.preventDefault();
+  if (searchTerm.trim()) {
+    navigate(`/product?search=${encodeURIComponent(searchTerm.trim())}`);
+    setSearchTerm(""); 
+  }
+};
   const isAuthed = Boolean(token);
   const isAdmin =
     storedRole === "admin" ||
@@ -80,12 +89,18 @@ function Header() {
               className="h-[40px] w-auto object-contain invert brightness-0"
             />
           </Link>
-
-          <form className="flex h-[40px] grow items-center rounded-[5px] bg-white px-[10px] max-w-[500px]">
+          
+          
+          <form 
+            onSubmit={handleSearch} // Thêm sự kiện submit
+            className="bg-white rounded-[5px] flex items-center grow h-[40px] px-[10px] max-w-[500px]"
+          >
             <input
               type="text"
               placeholder="Bạn cần tìm gì?"
-              className="grow border-none bg-transparent pr-[10px] text-[14px] text-[#333] outline-none"
+              value={searchTerm} // Liên kết với state
+              onChange={(e) => setSearchTerm(e.target.value)} // Cập nhật state khi gõ
+              className="border-none outline-none grow text-[14px] text-[#333] pr-[10px] bg-transparent"
             />
             <button
               type="submit"
@@ -98,7 +113,8 @@ function Header() {
           </form>
 
           <nav className="ml-auto">
-            <ul className="m-0 flex list-none items-center gap-[15px] p-0">
+            <ul className="flex items-center gap-[15px] m-0 p-0 list-none">
+              
               <li>
                 <a
                   href="tel:18006975"
