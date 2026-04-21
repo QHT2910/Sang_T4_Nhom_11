@@ -3,7 +3,7 @@ import productApi from "../../services/productServices";
 
 const emptyForm = {
   name: "",
-  category_id: "",
+  category: "",
   price: "",
   description: "",
   stock: "",
@@ -81,22 +81,24 @@ function AdminProduct() {
     }
   };
 
-  const startEdit = (product) => {
-    setEditingId(product.id);
-    setFormData({
-      name: product.name || "",
-      category_id: product.category || "",
-      price: product.price || "",
-      description: product.description || "",
-      stock: product.stock || "",
-      image: product.image || "",
-      image_url: product.image_url || "",
-      brand: product.brand || "",
-      
-      tag: product.tag || "",
-    });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+ // AdminProducts.jsx
+
+const startEdit = (product) => {
+  setEditingId(product.id);
+  setFormData({
+    name: product.name || "",
+    // CHỈ LẤY ID: Nếu category là object thì lấy id, nếu là số thì giữ nguyên
+    category: product.category?.id || product.category?.category_id || product.category || "", 
+    price: product.price || "",
+    description: product.description || "",
+    stock: product.stock || "",
+    image: product.image || "",
+    image_url: product.image_url || "",
+    brand: product.brand || "",
+    tag: product.tag || "",
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -104,7 +106,7 @@ function AdminProduct() {
 
     const data = new FormData();
     data.append("name", formData.name);
-    data.append("category_id", formData.category_id);
+    data.append("category", formData.category);
     data.append("price", parseFloat(formData.price));
     data.append("description", formData.description);
     data.append("stock", parseInt(formData.stock));
@@ -185,8 +187,8 @@ function AdminProduct() {
               
               <select
                 className="admin-input"
-                name="category_id"
-                value={formData.category_id}
+                name="category"
+                value={formData.category}
                 onChange={handleChange}
                 required
                 style={{ cursor: "pointer" }}

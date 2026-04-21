@@ -32,12 +32,12 @@ export const getProductById = async (req, res) => {
   }
 };
 
-// 3. Tạo sản phẩm mới
+
 export const createProduct = async (req, res) => {
   try {
     const form = new FormData();
     form.append("name", req.body.name);
-    form.append("category", req.body.category_id); 
+    form.append("category", req.body.category); 
     form.append("description", req.body.description || "");
     form.append("price", req.body.price);
     form.append("stock", req.body.stock || 0);
@@ -65,19 +65,28 @@ export const createProduct = async (req, res) => {
 };
 
 
+// productController.js
+
 export const updateProduct = async (req, res) => {
   const { id } = req.params;
   try {
     const form = new FormData();
     form.append("name", req.body.name);
-    form.append("category", req.body.category_id);
-    form.append("price", req.body.price);
-    form.append("stock", req.body.stock);
+    
+    // ÉP KIỂU SỐ cho category để Django không bắt lỗi 'received str'
+    if (req.body.category) {
+      form.append("category", Number(req.body.category)); 
+    }
+    
+    // Tương tự cho price và stock
+    form.append("price", Number(req.body.price));
+    form.append("stock", Number(req.body.stock));
+    
     form.append("description", req.body.description || "");
     form.append("brand", req.body.brand || "");
-    
     form.append("tag", req.body.tag || "");
 
+     
     if (req.file) {
       form.append("image", req.file.buffer, {
         filename: req.file.originalname,
@@ -87,18 +96,17 @@ export const updateProduct = async (req, res) => {
       form.append("image_url", req.body.image_url);
     }
 
-
     const response = await axios.patch(`${BASE_URL}${id}/`, form, {
       headers: { ...form.getHeaders(), ...NGROK_HEADERS },
     });
     res.json(new Product(response.data));
   } catch (error) {
-    console.error("LỖI UPDATE DJANGO:", error.response?.data || error.message); // Thêm log lỗi chi tiết
-    res.status(error.response?.status || 500).json(error.response?.data || { message: "Error updating product" });
+    console.error("LỖI UPDATE DJANGO:", error.response?.data || error.message);
+    res.status(error.response?.status || 500).json(error.response?.data);
   }
 };
 
-// 5. Xóa sản phẩm
+
 export const deleteProduct = async (req, res) => {
   const { id } = req.params;
   try {
@@ -118,3 +126,4 @@ export const getCategories = async (req, res) => {
     res.status(500).json({ message: "Cannot fetch categories" });
   }
 };
+

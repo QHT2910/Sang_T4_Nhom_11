@@ -84,7 +84,7 @@ function Header() {
               {/* Tra cứu đơn hàng */}
               <li>
                 <Link
-                  to={isAuthed ? "/donhang_cuatoi" : "/pay"}
+                  to={isAuthed ? "/Tracking" : "/pay"}
                   className="flex items-center gap-[8px] text-white px-[8px] py-[5px] rounded-[5px] hover:bg-white/15 transition-colors"
                 >
                   <div className="relative flex">
@@ -144,14 +144,12 @@ function Header() {
                         </li>
                       )}
                       <li>
-                        <Link to="/profile" className="block px-[20px] py-[10px] text-[#333] text-[14px] transition-colors hover:bg-[#f9f9f9] hover:text-[#e30019]" onClick={() => setIsOpen(false)}>
+                        <Link to="/user" className="block px-[20px] py-[10px] text-[#333] text-[14px] transition-colors hover:bg-[#f9f9f9] hover:text-[#e30019]" onClick={() => setIsOpen(false)}>
                           Tài khoản của tôi
                         </Link>
                       </li>
                       <li>
-                        <Link to="/donhang_cuatoi" className="block px-[20px] py-[10px] text-[#333] text-[14px] transition-colors border-b border-[#eee] hover:bg-[#f9f9f9] hover:text-[#e30019]" onClick={() => setIsOpen(false)}>
-                          Đơn hàng của tôi
-                        </Link>
+                        
                       </li>
                       <li>
                         <button onClick={handleLogout} className="w-full text-left px-[20px] py-[10px] text-red-600 text-[14px] font-medium transition-colors hover:bg-[#fff0f0]">

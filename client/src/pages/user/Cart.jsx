@@ -12,7 +12,6 @@ function Cart() {
   const updateCart = (newCart) => {
     setCartItems(newCart);
     localStorage.setItem("cart", JSON.stringify(newCart));
-    // Bắn sự kiện để Header cập nhật số lượng ngay lập tức
     window.dispatchEvent(new Event("cartChange"));
   };
 
@@ -92,9 +91,10 @@ function Cart() {
                 <span>{subtotal.toLocaleString()} ₫</span>
               </div>
             </div>
-            <button className="w-full bg-red-600 text-white py-4 rounded-xl font-bold hover:bg-red-700 transition-all shadow-lg shadow-red-100 uppercase tracking-wide">
+            <Link to='/pay' className="block bg-red-600 text-white py-4 rounded-xl font-bold hover:bg-red-700 transition-all shadow-lg shadow-red-100 uppercase tracking-wide text-center">
               Tiến hành thanh toán
-            </button>
+            </Link>
+            
           </div>
         </div>
       </div>
