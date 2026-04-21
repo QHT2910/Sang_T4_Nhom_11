@@ -27,7 +27,7 @@ function Product() {
         const res = await productApi.getProducts();
         setProducts(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
-        console.error("Khong tai duoc san pham", err);
+        console.error("Không tải được sản phẩm", err);
       }
     };
 
@@ -191,7 +191,7 @@ function Product() {
                         to={`/product/${productId}`}
                         className="mt-2 block text-center py-1.5 border border-blue-600 text-blue-600 rounded text-xs font-medium hover:bg-blue-600 hover:text-white transition-all"
                       >
-                        Chi tiết 
+                        Chi Tiết 
                       </Link>
                     </div>
                   </div>

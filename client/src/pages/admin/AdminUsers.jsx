@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import userApi from "../../services/userAdminService.js";
 
@@ -30,7 +30,29 @@ function getRole(user) {
   return "user";
 }
 
-function UserTable({ title, description, users, onEdit, onDelete, emptyText }) {
+function getUserFormData(user) {
+  return {
+    username: user?.username || user?.name || "",
+    email:
+      user?.email ||
+      user?.user_email ||
+      user?.mail ||
+      user?.account?.email ||
+      "",
+    password: "",
+    role: getRole(user),
+  };
+}
+
+function UserTable({
+  title,
+  description,
+  users,
+  onEdit,
+  onDelete,
+  canDeleteUser,
+  emptyText,
+}) {
   return (
     <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm md:p-6">
       <div className="flex flex-col gap-2 border-b border-slate-100 pb-4 sm:flex-row sm:items-end sm:justify-between">
@@ -52,6 +74,7 @@ function UserTable({ title, description, users, onEdit, onDelete, emptyText }) {
           users.map((user) => {
             const role = getRole(user);
             const roleInfo = roleMeta[role];
+            const canDelete = canDeleteUser ? canDeleteUser(user) : false;
 
             return (
               <div
@@ -112,13 +135,27 @@ function UserTable({ title, description, users, onEdit, onDelete, emptyText }) {
                   >
                     Chinh sua
                   </button>
-                  <button
-                    className="rounded-2xl bg-rose-50 px-4 py-2.5 text-sm font-semibold text-rose-600 transition hover:bg-rose-100"
-                    type="button"
-                    onClick={() => onDelete(user.user_id || user.id)}
-                  >
-                    Xoa
-                  </button>
+                  {onDelete && (
+                    <button
+                      className={`rounded-2xl px-4 py-2.5 text-sm font-semibold transition ${
+                        canDelete
+                          ? "bg-rose-50 text-rose-600 hover:bg-rose-100"
+                          : "cursor-not-allowed bg-slate-100 text-slate-400"
+                      }`}
+                      type="button"
+                      onClick={() => onDelete(user)}
+                      disabled={!canDelete}
+                      title={
+                        canDelete
+                          ? "Xoa tai khoan"
+                          : role === "superadmin"
+                            ? "Khong the xoa tai khoan superadmin"
+                            : "Ban khong co quyen xoa tai khoan"
+                      }
+                    >
+                      Xoa
+                    </button>
+                  )}
                 </div>
               </div>
             );
@@ -134,24 +171,33 @@ export default function AdminUsers() {
   const [users, setUsers] = useState([]);
   const [formData, setFormData] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
+  const [editingUser, setEditingUser] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
+  const formSectionRef = useRef(null);
+  const storedUser = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("user"));
+    } catch {
+      return null;
+    }
+  })();
+  const currentRole = storedUser?.is_superuser
+    ? "superadmin"
+    : storedUser?.is_staff || localStorage.getItem("role") === "admin"
+      ? "admin"
+      : localStorage.getItem("role") || "user";
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     const role = localStorage.getItem("role");
-    const storedUser = (() => {
-      try {
-        return JSON.parse(localStorage.getItem("user"));
-      } catch {
-        return null;
-      }
-    })();
-
     const isAllowed =
-      role === "superadmin" || storedUser?.is_superuser === true;
+      role === "admin" ||
+      role === "superadmin" ||
+      storedUser?.is_staff === true ||
+      storedUser?.is_superuser === true;
 
     if (!token) {
       navigate("/login");
@@ -187,17 +233,45 @@ export default function AdminUsers() {
 
   const startEdit = (user) => {
     setEditingId(user.user_id || user.id);
-    setFormData({
-      username: user.username || "",
-      email: user.email || "",
-      password: "",
-      role: getRole(user),
+    setEditingUser(user);
+    setFormData(getUserFormData(user));
+    formSectionRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
     });
   };
 
   const resetForm = () => {
     setEditingId(null);
+    setEditingUser(null);
     setFormData(emptyForm);
+  };
+
+  const canDeleteUser = (user) =>
+    currentRole === "superadmin" && getRole(user) !== "superadmin";
+
+  const handleDelete = async (user) => {
+    if (!canDeleteUser(user)) {
+      setError(
+        getRole(user) === "superadmin"
+          ? "Khong the xoa tai khoan superadmin."
+          : "Ban khong co quyen xoa tai khoan."
+      );
+      return;
+    }
+
+    setError("");
+    try {
+      await userApi.deleteUser(user.user_id || user.id);
+      if (editingId === (user.user_id || user.id)) {
+        resetForm();
+      }
+      loadUsers();
+    } catch (err) {
+      setError(
+        err?.response?.data?.message || err?.message || "Failed to delete user"
+      );
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -227,21 +301,6 @@ export default function AdminUsers() {
     } catch (err) {
       setError(
         err?.response?.data?.message || err?.message || "Failed to save user"
-      );
-    }
-  };
-
-  const handleDelete = async (id) => {
-    setError("");
-    try {
-      await userApi.deleteUser(id);
-      if (editingId === id) {
-        resetForm();
-      }
-      loadUsers();
-    } catch (err) {
-      setError(
-        err?.response?.data?.message || err?.message || "Failed to delete user"
       );
     }
   };
@@ -324,7 +383,10 @@ export default function AdminUsers() {
 
       <section className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
         <div className="space-y-6">
-          <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm md:p-6">
+          <div
+            ref={formSectionRef}
+            className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm md:p-6"
+          >
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-xl font-bold text-slate-900">
@@ -342,6 +404,8 @@ export default function AdminUsers() {
             </div>
 
             <form className="mt-6 grid gap-4" onSubmit={handleSubmit}>
+              <label className="grid gap-2">
+                <span className="text-sm font-semibold text-slate-700">Username</span>
               <input
                 className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-slate-400 focus:bg-white"
                 name="username"
@@ -350,14 +414,21 @@ export default function AdminUsers() {
                 onChange={handleChange}
                 required
               />
+              </label>
+              <label className="grid gap-2">
+                <span className="text-sm font-semibold text-slate-700">Email</span>
               <input
                 className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-slate-400 focus:bg-white"
                 name="email"
                 placeholder="Email"
+                type="email"
                 value={formData.email}
                 onChange={handleChange}
                 required
               />
+              </label>
+              <label className="grid gap-2">
+                <span className="text-sm font-semibold text-slate-700">Mat khau</span>
               <input
                 className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-slate-400 focus:bg-white"
                 name="password"
@@ -370,6 +441,9 @@ export default function AdminUsers() {
                 value={formData.password}
                 onChange={handleChange}
               />
+              </label>
+              <label className="grid gap-2">
+                <span className="text-sm font-semibold text-slate-700">Role</span>
               <select
                 className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-slate-400 focus:bg-white"
                 name="role"
@@ -380,6 +454,7 @@ export default function AdminUsers() {
                 <option value="admin">Admin</option>
                 <option value="superadmin">Super Admin</option>
               </select>
+              </label>
 
               <div className="flex flex-wrap gap-3 pt-2">
                 <button
@@ -491,7 +566,8 @@ export default function AdminUsers() {
           description="Tai khoan co quyen van hanh, quan ly va can duoc theo doi chat che."
           users={adminAccounts}
           onEdit={startEdit}
-          onDelete={handleDelete}
+          onDelete={currentRole === "superadmin" ? handleDelete : null}
+          canDeleteUser={canDeleteUser}
           emptyText={
             loading ? "Dang tai danh sach quan tri..." : "Khong co tai khoan admin phu hop."
           }
@@ -501,7 +577,8 @@ export default function AdminUsers() {
           description="Danh sach tai khoan khach hang va tai khoan thuong trong he thong."
           users={userAccounts}
           onEdit={startEdit}
-          onDelete={handleDelete}
+          onDelete={currentRole === "superadmin" ? handleDelete : null}
+          canDeleteUser={canDeleteUser}
           emptyText={
             loading ? "Dang tai danh sach nguoi dung..." : "Khong co nguoi dung phu hop."
           }

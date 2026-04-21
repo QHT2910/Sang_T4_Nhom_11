@@ -25,16 +25,16 @@ export const createOrder = async (req, res) => {
     console.log("[createOrder] req.user:", req.user);
 
     if (!authHeader) {
-      return res.status(401).json({ message: "Khong tim thay token" });
+      return res.status(401).json({ message: "Không tìm thấy token" });
     }
 
     if (!userId) {
-      return res.status(401).json({ message: "Khong xac dinh duoc user id tu token" });
+      return res.status(401).json({ message: "Không xác định được user id từ token" });
     }
 
     const parsedTotal = Number(total_price);
     if (!Number.isFinite(parsedTotal)) {
-      return res.status(400).json({ message: "Tong tien khong hop le" });
+      return res.status(400).json({ message: "Tổng tiền không hợp lệ" });
     }
 
     const dataForDjango = {
@@ -86,12 +86,12 @@ export const createOrder = async (req, res) => {
       });
     }
 
-    console.error("Loi khi tao don hang:", responseData || error.message);
+    console.error("Lỗi khi tạo đơn hàng:", responseData || error.message);
     return res.status(error.response?.status || 500).json({
       message:
         responseData?.message ||
         responseData?.error ||
-        "Loi ket noi server",
+        "Lỗi kết nối server",
       error: responseData || error.message,
     });
   }
@@ -102,29 +102,62 @@ export const getOrders = async (req, res) => {
     const response = await api.get("", getAuthHeaders(req));
     res.json(response.data);
   } catch (error) {
-    res.status(500).json({ message: "Loi tai don hang" });
+    res.status(500).json({ message: "Lỗi tải đơn hàng" });
   }
 };
 
 export const getUserOrders = async (req, res) => {
   try {
     const response = await api.get("", getAuthHeaders(req));
-    res.json(response.data);
+    const userId = req.user?.id || req.user?.user_id;
+    const orders = Array.isArray(response.data) ? response.data : [];
+    const userOrders = orders.filter((order) => {
+      const orderUserId =
+        order?.user_id ||
+        order?.user?.user_id ||
+        order?.user?.id ||
+        order?.user;
+      return String(orderUserId) === String(userId);
+    });
+    res.json(userOrders);
   } catch (error) {
-    res.status(500).json({ message: "Loi tai lich su don hang" });
+    res.status(500).json({ message: "Lỗi tải lịch sử đơn hàng" });
   }
 };
 
 export const updateOrderStatus = async (req, res) => {
+  const payload = {
+    ...req.body,
+    cancel_reason: req.body?.cancel_reason || req.body?.reason || "",
+    reason: req.body?.reason || req.body?.cancel_reason || "",
+  };
+
   try {
     const response = await api.patch(
       `${req.params.id}/update_status/`,
-      req.body,
+      payload,
       getAuthHeaders(req)
     );
     res.json(response.data);
   } catch (error) {
-    res.status(400).json(error.response?.data);
+    try {
+      const fallbackResponse = await api.patch(
+        `${req.params.id}/`,
+        payload,
+        getAuthHeaders(req)
+      );
+      res.json(fallbackResponse.data);
+    } catch (fallbackError) {
+      console.error(
+        "Lỗi khi cập nhật trạng thái đơn hàng:",
+        fallbackError.response?.data || fallbackError.message
+      );
+      res.status(fallbackError.response?.status || 400).json(
+        fallbackError.response?.data || {
+          message: "Không thể cập nhật trạng thái đơn hàng",
+        }
+      );
+    }
   }
 };
 
@@ -133,6 +166,13 @@ export const deleteOrder = async (req, res) => {
     const response = await api.delete(`${req.params.id}/`, getAuthHeaders(req));
     res.json({ message: "Da xoa don hang", data: response.data });
   } catch (error) {
-    res.status(500).json({ message: "Loi khi xoa" });
+    console.error("Lỗi khi xóa đơn hàng:", error.response?.data || error.message);
+    res.status(error.response?.status || 500).json({
+      message:
+        error.response?.data?.message ||
+        error.response?.data?.detail ||
+        "Lỗi khi xóa",
+      error: error.response?.data || error.message,
+    });
   }
 };

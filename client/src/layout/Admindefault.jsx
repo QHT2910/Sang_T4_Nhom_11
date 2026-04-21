@@ -4,22 +4,22 @@ const adminNavItems = [
   {
     to: "/admin",
     label: "Dashboard",
-    description: "Tong quan he thong",
+    description: "Tổng quan hệ thống",
   },
   {
     to: "/admin/users",
-    label: "Quan ly tai khoan",
-    description: "User va admin",
+    label: "Quản lý tài khoản",
+    description: "User và admin",
   },
   {
     to: "/admin/products",
-    label: "San pham",
-    description: "Kho va danh muc",
+    label: "Sản phẩm",
+    description: "Kho và danh mục",
   },
   {
     to: "/admin/orders",
-    label: "Quan ly don hang",
-    description: "Don hang va trang thai",
+    label: "Quản Lý Đơn Hàng",
+    description: "Đơn hàng và trạng thái",
   }
 ];
 
@@ -70,7 +70,7 @@ function Admindefault() {
               onClick={() => navigate("/")}
               className="hidden rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 transition hover:-translate-y-0.5 hover:border-slate-300 hover:text-slate-900 sm:inline-flex"
             >
-              Ve trang chu
+              Về trang chủ
             </button>
           </div>
 
@@ -98,7 +98,7 @@ function Admindefault() {
             <div className="flex flex-wrap items-center gap-3">
               <div className="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 shadow-sm">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                  Dang nhap
+                  Đăng nhập
                 </p>
                 <p className="text-sm font-semibold text-slate-900">{displayName}</p>
               </div>
@@ -107,7 +107,7 @@ function Admindefault() {
                 onClick={handleLogout}
                 className="rounded-2xl bg-gradient-to-r from-rose-500 to-orange-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-rose-200 transition hover:-translate-y-0.5"
               >
-                Dang xuat
+                Đăng xuất
               </button>
             </div>
           </div>

@@ -98,7 +98,7 @@ export default function AdminDashboard() {
       setError(
         err?.response?.data?.message ||
           err?.message ||
-          "Khong the tai du lieu dashboard"
+          "Không thể tải dữ liệu dashboard"
       );
     } finally {
       setLoading(false);
@@ -178,73 +178,71 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-6">
       <section className="overflow-hidden rounded-[28px] border border-slate-200 bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 text-white shadow-xl">
-        <div className="grid gap-8 px-6 py-7 lg:grid-cols-[1.4fr_0.9fr] lg:px-8">
-          <div>
-            <div className="inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-blue-100">
-              Admin Dashboard
+        <div className="px-6 py-8 lg:px-8">
+          <div className="flex items-center justify-between gap-6 mb-8">
+            <div>
+              <div className="inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-blue-100">
+                Bảng Điều Khiển
+              </div>
+              <h1 className="mt-4 text-3xl font-bold md:text-3xl">
+                Quản Lý Hệ Thống
+              </h1>
             </div>
-            <h1 className="mt-4 max-w-2xl text-3xl font-bold leading-tight md:text-4xl">
-              Theo doi nguoi dung, san pham va ton kho tren cung mot man hinh.
-            </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300 md:text-base">
-              Dashboard nay lay du lieu tu API user va product cua du an, giup
-              ban xem nhanh suc khoe he thong va cac muc can uu tien xu ly.
-            </p>
-
-            <div className="mt-6 flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2 lg:gap-3">
               <button
                 type="button"
                 onClick={() => navigate("/admin/users")}
                 className="rounded-2xl bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
               >
-                Quan ly nguoi dung
+                Quản Lý Người Dùng
               </button>
               <button
                 type="button"
                 onClick={() => navigate("/admin/products")}
                 className="rounded-2xl border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/15"
               >
-                Quan ly san pham
+                Quản Lý Sản Phẩm
               </button>
               <button
                 type="button"
                 onClick={loadDashboard}
                 className="rounded-2xl border border-white/20 bg-transparent px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/10"
               >
-                Lam moi du lieu
+                Làm Mới Dữ Liệu
               </button>
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div className="rounded-3xl border border-white/10 bg-white/10 p-5 backdrop-blur-sm">
-              <p className="text-sm text-slate-300">Tong gia tri ton kho</p>
+              <p className="text-sm text-slate-300">Tổng Giá Trị Tồn Kho</p>
               <h2 className="mt-3 text-2xl font-bold">
                 {currency.format(metrics.totalInventoryValue)}
               </h2>
               <p className="mt-2 text-sm text-slate-300">
-                {metrics.totalUnits} don vi hang dang duoc quan ly.
+                {metrics.totalUnits} đơn vị hàng đang được quản lý.
               </p>
             </div>
             <div className="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
-              <p className="text-sm text-slate-300">Canh bao hien tai</p>
-              <div className="mt-4 space-y-3 text-sm">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-slate-300">Het hang</span>
+              <p className="text-sm text-slate-300">Tổng Sản Phẩm</p>
+              <h2 className="mt-3 text-2xl font-bold">{metrics.totalProducts}</h2>
+              <p className="mt-2 text-sm text-slate-300">
+                {metrics.inStockProducts} sản phẩm còn hàng
+              </p>
+            </div>
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
+              <p className="text-sm text-slate-300">Cảnh Báo Hiện Tại</p>
+              <div className="mt-4 space-y-2 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-300">Hết hàng:</span>
                   <span className="font-bold text-rose-300">
                     {metrics.outOfStockProducts}
                   </span>
                 </div>
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-slate-300">Sap het</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-300">Sắp hết:</span>
                   <span className="font-bold text-amber-300">
                     {metrics.lowStockProducts}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-slate-300">Tai khoan admin</span>
-                  <span className="font-bold text-blue-200">
-                    {metrics.superusers + metrics.staffUsers}
                   </span>
                 </div>
               </div>
@@ -261,27 +259,27 @@ export default function AdminDashboard() {
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
-          title="Tong nguoi dung"
+          title="Tổng Người Dùng"
           value={metrics.totalUsers}
-          hint={`${metrics.activeUsers} tai khoan dang active`}
+          hint={`${metrics.activeUsers} tài khoản đang hoạt động`}
           tone="blue"
         />
         <StatCard
-          title="Tong san pham"
+          title="Tổng Sản Phẩm"
           value={metrics.totalProducts}
-          hint={`${metrics.inStockProducts} san pham con hang`}
+          hint={`${metrics.inStockProducts} sản phẩm còn hàng`}
           tone="emerald"
         />
         <StatCard
-          title="San pham sap het"
+          title="Sản Phẩm Sắp Hết"
           value={metrics.lowStockProducts}
-          hint="Nhung san pham co stock tu 1 den 10"
+          hint="Những sản phẩm có stock từ 1 đến 10"
           tone="amber"
         />
         <StatCard
-          title="San pham het hang"
+          title="Sản phẩm hết hàng"
           value={metrics.outOfStockProducts}
-          hint="Can uu tien cap nhat ton kho"
+          hint="Cần ưu tiên cập nhật tồn kho"
           tone="rose"
         />
       </section>
@@ -292,26 +290,26 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between gap-3">
               <div>
                 <h2 className="text-xl font-bold text-slate-900">
-                  Tong quan he thong
+                  Tổng Quan Hệ Thống
                 </h2>
                 <p className="mt-1 text-sm text-slate-500">
-                  Cac ti le quan trong duoc tinh tu du lieu hien co.
+                  Các tỷ lệ quan trọng được tính từ dữ liệu hiện có.
                 </p>
               </div>
               <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
-                Live data
+                Dữ Liệu Thực Tế
               </span>
             </div>
 
             <div className="mt-5 grid gap-4">
               <ProgressBlock
-                label="Nguoi dung dang hoat dong"
+                label="Người Dùng Đang Hoạt Động"
                 value={metrics.activeUsers}
                 total={metrics.totalUsers}
                 colorClass="bg-gradient-to-r from-blue-500 to-sky-400"
               />
               <ProgressBlock
-                label="San pham con hang"
+                label="Sản phẩm còn hàng"
                 value={metrics.inStockProducts}
                 total={metrics.totalProducts}
                 colorClass="bg-gradient-to-r from-emerald-500 to-lime-400"
@@ -329,19 +327,19 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between gap-3">
               <div>
                 <h2 className="text-xl font-bold text-slate-900">
-                  Canh bao ton kho
+                  Cảnh Báo Tồn Kho
                 </h2>
                 <p className="mt-1 text-sm text-slate-500">
-                  Nhung san pham can kiem tra truoc.
+                  Những sản phẩm cần kiểm tra trước.
                 </p>
               </div>
             </div>
 
             <div className="mt-5 space-y-3">
               {loading ? (
-                <p className="text-sm text-slate-500">Dang tai du lieu...</p>
+                <p className="text-sm text-slate-500">Đang tải dữ liệu...</p>
               ) : stockAlerts.length === 0 ? (
-                <p className="text-sm text-slate-500">Chua co san pham nao.</p>
+                <p className="text-sm text-slate-500">Chưa có sản phẩm nào.</p>
               ) : (
                 stockAlerts.map((product) => {
                   const stock = Number(product.stock || 0);
@@ -352,7 +350,7 @@ export default function AdminDashboard() {
                         ? "bg-amber-100 text-amber-700"
                         : "bg-emerald-100 text-emerald-700";
                   const label =
-                    stock <= 0 ? "Het hang" : stock <= 10 ? "Sap het" : "On dinh";
+                    stock <= 0 ? "Hết hàng" : stock <= 10 ? "Sắp hết" : "On định";
 
                   return (
                     <div
@@ -387,9 +385,9 @@ export default function AdminDashboard() {
 
         <div className="space-y-6">
           <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-            <h2 className="text-xl font-bold text-slate-900">Phan bo vai tro</h2>
+            <h2 className="text-xl font-bold text-slate-900">Phân Bố Vai Trò</h2>
             <p className="mt-1 text-sm text-slate-500">
-              Co cau nguoi dung hien tai trong he thong.
+              Cơ cấu người dùng hiện tại trong hệ thống.
             </p>
 
             <div className="mt-5 space-y-3">
@@ -419,7 +417,7 @@ export default function AdminDashboard() {
                         {item.label}
                       </span>
                       <span className="text-slate-500">
-                        {item.value} tai khoan
+                        {item.value} tài khoản
                       </span>
                     </div>
                     <div className="h-2.5 overflow-hidden rounded-full bg-slate-100">
@@ -436,12 +434,8 @@ export default function AdminDashboard() {
 
           <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
             <h2 className="text-xl font-bold text-slate-900">
-              Nguoi dung gan day
+              Người dùng gần đây  
             </h2>
-            <p className="mt-1 text-sm text-slate-500">
-              Lay 5 tai khoan cuoi trong danh sach tra ve.
-            </p>
-
             <div className="mt-5 space-y-3">
               {loading ? (
                 <p className="text-sm text-slate-500">Dang tai du lieu...</p>
@@ -491,10 +485,10 @@ export default function AdminDashboard() {
 
           <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
             <h2 className="text-xl font-bold text-slate-900">
-              San pham ton kho cao
+              Sản Phẩm Tồn Kho Cao
             </h2>
             <p className="mt-1 text-sm text-slate-500">
-              Nhung mat hang dang co so luong lon nhat.
+              Những mật hàng đang có số lượng lớn nhất.
             </p>
 
             <div className="mt-5 space-y-3">
