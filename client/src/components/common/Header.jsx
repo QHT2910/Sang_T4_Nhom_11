@@ -4,7 +4,7 @@ import { useState } from "react";
 
 function Header() {
   const navigate = useNavigate();
-
+const [searchTerm, setSearchTerm] = useState("");
   const token = localStorage.getItem("token");
   const storedRole = localStorage.getItem("role") || "user";
   const [isOpen, setIsOpen] = useState(false); // State quản lý việc đóng mở
@@ -21,6 +21,14 @@ function Header() {
     console.error("Failed to parse user data from localStorage", err);
   }
 
+  // Trong Header.jsx
+const handleSearch = (e) => {
+  e.preventDefault();
+  if (searchTerm.trim()) {
+    navigate(`/product?search=${encodeURIComponent(searchTerm.trim())}`);
+    setSearchTerm(""); 
+  }
+};
   const isAuthed = Boolean(token);
   const isAdmin =
     storedRole === "admin" ||
@@ -50,11 +58,16 @@ function Header() {
             />
           </Link>
           
-          {/* 3. Ô TÌM KIẾM */}
-          <form className="bg-white rounded-[5px] flex items-center grow h-[40px] px-[10px] max-w-[500px]">
+          
+          <form 
+            onSubmit={handleSearch} // Thêm sự kiện submit
+            className="bg-white rounded-[5px] flex items-center grow h-[40px] px-[10px] max-w-[500px]"
+          >
             <input
               type="text"
               placeholder="Bạn cần tìm gì?"
+              value={searchTerm} // Liên kết với state
+              onChange={(e) => setSearchTerm(e.target.value)} // Cập nhật state khi gõ
               className="border-none outline-none grow text-[14px] text-[#333] pr-[10px] bg-transparent"
             />
             <button
@@ -70,7 +83,7 @@ function Header() {
           {/* 4. THANH NAVIGATION */}
           <nav className="ml-auto">
             <ul className="flex items-center gap-[15px] m-0 p-0 list-none">
-              {/* Hotline & Tra cứu giữ nguyên */}
+              
               <li>
                 <a href="tel:18006975" className="flex items-center gap-[8px] text-white px-[8px] py-[5px] rounded-[5px] hover:bg-white/15 transition-colors">
                   <svg className="w-[24px] h-[24px] stroke-white fill-none shrink-0" viewBox="0 0 24 24" strokeWidth="2">
