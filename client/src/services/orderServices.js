@@ -14,7 +14,11 @@ const orderApi = {
     createOrder: (data) => api.post("/order", data),
 
     // 5. Cập nhật trạng thái (Dùng trong AdminOrder.jsx)
-    updateOrderStatus: (id, status) => api.patch(`/order/${id}/update_status`, { status }),
+    updateOrderStatus: (id, payload) =>
+      api.patch(
+        `/order/${id}/update_status`,
+        typeof payload === "string" ? { status: payload } : payload
+      ),
 
     // 6. Xóa đơn hàng (Soft Delete - Cần thêm để AdminOrder.jsx hoạt động)
     deleteOrder: (id) => api.delete(`/order/${id}`),

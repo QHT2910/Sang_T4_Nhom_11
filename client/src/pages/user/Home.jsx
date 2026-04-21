@@ -75,7 +75,7 @@ function Home() {
         setProducts(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
         console.error("Không tải được sản phẩm:", err);
-        setError("Khong tai duoc san pham");
+        setError("Không tải được sản phẩm");
       } finally {
         setLoading(false);
       }
@@ -242,7 +242,7 @@ function Home() {
 
       <div className="max-w-[1200px] w-full mx-auto px-[10px] mt-[40px] space-y-8">
         {loading ? (
-          <div className="text-center p-10 font-bold">Dang tai san pham...</div>
+          <div className="text-center p-10 font-bold">Đang tải sản phẩm...</div>
         ) : error ? (
           <div className="text-center p-10 text-red-500">{error}</div>
         ) : (

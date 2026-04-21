@@ -11,6 +11,7 @@ import {
   XCircle,
   MapPin,
   Calendar,
+  X,
 } from "lucide-react";
 
 const getOrderId = (order) => order.order_id || order.id;
@@ -18,35 +19,59 @@ const getOrderDate = (order) => order.order_date || order.created_at;
 const getOrderItems = (order) => order.order_items || order.items || [];
 const getOrderTotal = (order) =>
   Number(order.total || order.total_amount || order.total_price || 0);
+const getOrderStatus = (order) => {
+  if (typeof order.status === "string") return order.status;
+  return order.status ? "delivered" : "pending";
+};
 
 function Tracking() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedOrder, setExpandedOrder] = useState(null);
+  const [cancelOrder, setCancelOrder] = useState(null);
+  const [cancelReason, setCancelReason] = useState("");
+  const [isCancelling, setIsCancelling] = useState(false);
+  const currentUser = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("user") || "{}");
+    } catch {
+      return {};
+    }
+  })();
+
+  const fetchOrders = async () => {
+    setLoading(true);
+    try {
+      const res = await orderApi.getUserOrders();
+      const visibleOrders = [...(res.data || [])].filter((order) => {
+        const orderUserId =
+          order?.user_id ||
+          order?.user?.user_id ||
+          order?.user?.id ||
+          order?.user;
+        const currentUserId = currentUser?.user_id || currentUser?.id;
+        return String(orderUserId) === String(currentUserId);
+      });
+      const sortedOrders = visibleOrders.sort((a, b) => {
+        const leftDate = new Date(getOrderDate(a) || 0).getTime();
+        const rightDate = new Date(getOrderDate(b) || 0).getTime();
+        return rightDate - leftDate;
+      });
+      setOrders(sortedOrders);
+    } catch (err) {
+      console.error("Lỗi tải đơn hàng:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const res = await orderApi.getUserOrders();
-        const sortedOrders = [...(res.data || [])].sort((a, b) => {
-          const leftDate = new Date(getOrderDate(a) || 0).getTime();
-          const rightDate = new Date(getOrderDate(b) || 0).getTime();
-          return rightDate - leftDate;
-        });
-        setOrders(sortedOrders);
-      } catch (err) {
-        console.error("Lỗi không thấy sản phẩm:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchOrders();
-  }, []);
+  }, [currentUser?.id, currentUser?.user_id]);
 
   const statusConfig = {
     pending: {
-      label: "Chờ xử lý",
+      label: "Cho xu ly",
       color: "text-yellow-600 bg-yellow-50 border-yellow-100",
       icon: <Clock size={16} />,
     },
@@ -61,12 +86,12 @@ function Tracking() {
       icon: <Truck size={16} />,
     },
     delivered: {
-      label: "Đã hoàn thành",
+      label: "Da hoan thanh",
       color: "text-green-600 bg-green-50 border-green-100",
       icon: <CheckCircle size={16} />,
     },
     deleted: {
-      label: "Đã hủy",
+      label: "Da huy",
       color: "text-red-600 bg-red-50 border-red-100",
       icon: <XCircle size={16} />,
     },
@@ -76,35 +101,77 @@ function Tracking() {
     setExpandedOrder(expandedOrder === orderId ? null : orderId);
   };
 
+  const openCancelModal = (order) => {
+    setCancelOrder(order);
+    setCancelReason("");
+  };
+
+  const closeCancelModal = () => {
+    if (isCancelling) return;
+    setCancelOrder(null);
+    setCancelReason("");
+  };
+
+  const handleCancelOrder = async () => {
+    if (!cancelOrder) return;
+    if (!cancelReason.trim()) {
+      alert("Vui long nhap ly do huy don.");
+      return;
+    }
+
+    setIsCancelling(true);
+    try {
+      await orderApi.updateOrderStatus(getOrderId(cancelOrder), {
+        status: "deleted",
+        reason: cancelReason.trim(),
+        cancel_reason: cancelReason.trim(),
+      });
+      closeCancelModal();
+      await fetchOrders();
+      alert("Da huy don hang.");
+    } catch (error) {
+      console.error("Lỗi khi hủy đơn:", error);
+      alert(
+        error?.response?.data?.message ||
+          error?.response?.data?.detail ||
+          "Khong the huy don hang."
+      );
+    } finally {
+      setIsCancelling(false);
+    }
+  };
+
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
-        <p className="mt-4 text-gray-500 font-medium">Loading...</p>
+      <div className="flex min-h-[60vh] flex-col items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-red-600"></div>
+        <p className="mt-4 font-medium text-gray-500">Loading...</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-4 md:p-8 min-h-screen bg-gray-50">
+    <div className="min-h-screen max-w-4xl bg-gray-50 p-4 md:mx-auto md:p-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-black text-gray-900 uppercase tracking-tighter flex items-center gap-3">
+        <h1 className="flex items-center gap-3 text-3xl font-black uppercase tracking-tighter text-gray-900">
           <ShoppingBag className="text-red-600" size={32} />
-          Đơn hàng của tôi
+          Don hang cua toi
         </h1>
-        <p className="text-gray-500 mt-1">theo dõi tiến độ và lịch sử</p>
+        <p className="mt-1 text-gray-500">theo doi tien do va lich su</p>
       </div>
 
       {orders.length === 0 ? (
-        <div className="text-center py-20 bg-white rounded-3xl border-2 border-dashed border-gray-200 shadow-sm">
-          <ShoppingBag size={64} className="mx-auto text-gray-200 mb-4" />
-          <h3 className="text-xl font-bold text-gray-800">Chưa có đơn hàng</h3>
-          <p className="text-gray-500 mt-2 mb-6">Chưa thực hiện giao dịch nào.</p>
+        <div className="rounded-3xl border-2 border-dashed border-gray-200 bg-white py-20 text-center shadow-sm">
+          <ShoppingBag size={64} className="mx-auto mb-4 text-gray-200" />
+          <h3 className="text-xl font-bold text-gray-800">Chua co don hang</h3>
+          <p className="mb-6 mt-2 text-gray-500">
+            Chưa thực hiện giao dịch nào.
+          </p>
           <a
             href="/product"
-            className="inline-block bg-red-600 text-white px-8 py-3 rounded-xl font-black uppercase tracking-wide hover:bg-red-700 transition-all"
+            className="inline-block rounded-xl bg-red-600 px-8 py-3 font-black uppercase tracking-wide text-white transition-all hover:bg-red-700"
           >
-            Xem sản phẩm
+            Xem san pham
           </a>
         </div>
       ) : (
@@ -113,98 +180,124 @@ function Tracking() {
             const orderId = getOrderId(order);
             const orderDate = getOrderDate(order);
             const orderItems = getOrderItems(order);
-            const status =
-              typeof order.status === "string"
-                ? statusConfig[order.status] || statusConfig.pending
-                : order.status
-                  ? statusConfig.delivered
-                  : statusConfig.pending;
+            const statusKey = getOrderStatus(order);
+            const status = statusConfig[statusKey] || statusConfig.pending;
             const isExpanded = expandedOrder === orderId;
+            const canCancel =
+              statusKey === "pending" || statusKey === "processing";
 
             return (
               <div
                 key={orderId}
-                className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow"
+                className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-shadow hover:shadow-md"
               >
-                <div className="p-5 flex flex-wrap justify-between items-center gap-4 bg-white">
+                <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-5">
                   <div className="flex items-center gap-4">
-                    <div className="bg-gray-100 p-3 rounded-xl">
+                    <div className="rounded-xl bg-gray-100 p-3">
                       <Package className="text-gray-600" size={24} />
                     </div>
                     <div>
-                      <h4 className="font-black text-gray-900">Ma don: #{orderId}</h4>
-                      <div className="flex items-center gap-2 text-xs text-gray-400 font-medium">
+                      <h4 className="font-black text-gray-900">
+                        Ma don: #{orderId}
+                      </h4>
+                      <div className="flex items-center gap-2 text-xs font-medium text-gray-400">
                         <Calendar size={12} />
-                        {orderDate ? new Date(orderDate).toLocaleDateString("vi-VN") : "N/A"}
+                        {orderDate
+                          ? new Date(orderDate).toLocaleDateString("vi-VN")
+                          : "N/A"}
                       </div>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-3">
                     <span
-                      className={`flex items-center gap-1.5 text-[10px] font-black uppercase px-4 py-2 rounded-full border ${status.color}`}
+                      className={`flex items-center gap-1.5 rounded-full border px-4 py-2 text-[10px] font-black uppercase ${status.color}`}
                     >
                       {status.icon}
                       {status.label}
                     </span>
                     <button
                       onClick={() => toggleExpand(orderId)}
-                      className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400"
+                      className="rounded-full p-2 text-gray-400 transition-colors hover:bg-gray-100"
                     >
-                      {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                      {isExpanded ? (
+                        <ChevronUp size={20} />
+                      ) : (
+                        <ChevronDown size={20} />
+                      )}
                     </button>
                   </div>
                 </div>
 
-                <div className="px-5 pb-5 grid grid-cols-1 md:grid-cols-2 gap-4 border-b border-gray-50">
+                <div className="grid grid-cols-1 gap-4 border-b border-gray-50 px-5 pb-5 md:grid-cols-2">
                   <div className="flex items-start gap-2">
-                    <MapPin size={16} className="text-gray-400 mt-1" />
+                    <MapPin size={16} className="mt-1 text-gray-400" />
                     <div>
-                      <p className="text-[10px] text-gray-400 font-bold uppercase">Dia chi giao hang</p>
-                      <p className="text-sm font-bold text-gray-700 leading-tight">
+                      <p className="text-[10px] font-bold uppercase text-gray-400">
+                        Dia chi giao hang
+                      </p>
+                      <p className="text-sm font-bold leading-tight text-gray-700">
                         {order.user?.username || "Khach hang"} | {order.phone}
                       </p>
-                      <p className="text-xs text-gray-500 mt-0.5">{order.address}</p>
+                      <p className="mt-0.5 text-xs text-gray-500">
+                        {order.address}
+                      </p>
                     </div>
                   </div>
                   <div className="flex flex-col items-end justify-center">
-                    <p className="text-[10px] text-gray-400 font-bold uppercase">Tong thanh toan</p>
+                    <p className="text-[10px] font-bold uppercase text-gray-400">
+                      Tong thanh toan
+                    </p>
                     <p className="text-2xl font-black text-red-600">
-                      {getOrderTotal(order).toLocaleString()} VND
+                      {getOrderTotal(order).toLocaleString("vi-VN")} VND
                     </p>
                   </div>
                 </div>
 
                 {isExpanded && (
-                  <div className="bg-gray-50/50 p-5 space-y-3 animate-in slide-in-from-top-2 duration-300">
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">
-                      chi tiết sản phẩm
-                    </p>
+                  <div className="animate-in space-y-3 bg-gray-50/50 p-5 duration-300 slide-in-from-top-2">
+                    <div className="mb-2 flex items-center justify-between gap-3">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                        chi tiet san pham
+                      </p>
+                      {canCancel && (
+                        <button
+                          type="button"
+                          onClick={() => openCancelModal(order)}
+                          className="rounded-xl bg-red-600 px-4 py-2 text-xs font-black uppercase tracking-wide text-white transition-colors hover:bg-red-700"
+                        >
+                          Huy don
+                        </button>
+                      )}
+                    </div>
                     {orderItems.length > 0 ? (
                       orderItems.map((item) => (
                         <div
-                          key={item.order_item_id || `${orderId}-${item.product}-${item.quantity}`}
-                          className="flex items-center gap-4 p-3 bg-white border border-gray-100 rounded-xl"
+                          key={
+                            item.order_item_id ||
+                            `${orderId}-${item.product}-${item.quantity}`
+                          }
+                          className="flex items-center gap-4 rounded-xl border border-gray-100 bg-white p-3"
                         >
-                          <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gray-100">
                             <Package size={20} className="text-gray-300" />
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-bold text-gray-800 truncate">
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-bold text-gray-800">
                               {item.product_name || item.product || "San pham"}
                             </p>
-                            <p className="text-xs text-gray-400 font-medium italic">
+                            <p className="text-xs font-medium italic text-gray-400">
                               So luong: {item.quantity}
                             </p>
                           </div>
                           <p className="text-sm font-black text-gray-900">
-                            {Number(item.price || 0).toLocaleString()} VND
+                            {Number(item.price || 0).toLocaleString("vi-VN")} VND
                           </p>
                         </div>
                       ))
                     ) : (
-                      <p className="text-xs text-gray-400 italic">
-                        Không có dữ liệu sản phẩm
+                      <p className="text-xs italic text-gray-400">
+                        Khong co du lieu san pham
                       </p>
                     )}
                   </div>
@@ -212,6 +305,61 @@ function Tracking() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {cancelOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-lg rounded-3xl bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b p-5">
+              <div>
+                <h2 className="text-lg font-black text-gray-900">
+                  Huy don #{getOrderId(cancelOrder)}
+                </h2>
+                <p className="mt-1 text-sm text-gray-500">
+                  Nhap ly do huy don de he thong ghi nhan.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closeCancelModal}
+                className="rounded-full p-2 text-gray-400 transition-colors hover:bg-gray-100"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="p-5">
+              <label className="mb-2 block text-sm font-bold text-gray-700">
+                Ly do huy don
+              </label>
+              <textarea
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+                rows="5"
+                placeholder="Nhap ly do huy don..."
+                className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition focus:border-red-400 focus:bg-white"
+              />
+            </div>
+
+            <div className="flex justify-end gap-3 border-t p-5">
+              <button
+                type="button"
+                onClick={closeCancelModal}
+                className="rounded-2xl border border-gray-200 px-4 py-2.5 text-sm font-bold text-gray-700 transition hover:bg-gray-50"
+              >
+                Dong
+              </button>
+              <button
+                type="button"
+                onClick={handleCancelOrder}
+                disabled={isCancelling}
+                className="rounded-2xl bg-red-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-red-300"
+              >
+                {isCancelling ? "Dang huy..." : "Xac nhan huy"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

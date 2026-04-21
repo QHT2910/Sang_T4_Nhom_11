@@ -6,7 +6,7 @@ export const authMiddleware = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
-    return res.status(401).json({ message: "Khong tim thay token" });
+    return res.status(401).json({ message: "Không tìm thấy token" });
   }
 
   try {
@@ -23,15 +23,15 @@ export const authMiddleware = (req, res, next) => {
 
     if (!req.user.id) {
       return res.status(401).json({
-        message: "Token khong chua user id hop le",
+        message: "Token không chứa user id hợp lệ",
       });
     }
 
     next();
   } catch (err) {
-    console.error("DEBUG: Loi xac thuc JWT:", err.message);
+    console.error("DEBUG: Lỗi xác thực JWT:", err.message);
     return res.status(403).json({
-      message: "Token khong hop le hoac da het han",
+      message: "Token không hợp lệ hoặc đã hết hạn",
       error: err.message,
     });
   }

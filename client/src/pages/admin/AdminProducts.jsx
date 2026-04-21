@@ -92,7 +92,7 @@ const startEdit = (product) => {
     price: product.price || "",
     description: product.description || "",
     stock: product.stock || "",
-    image: product.image || "",
+    image: product.image || product.image_url || "",
     image_url: product.image_url || "",
     brand: product.brand || "",
     tag: product.tag || "",
@@ -104,20 +104,46 @@ const startEdit = (product) => {
     e.preventDefault();
     setError("");
 
+    const requiredFields = [
+      { key: "name", label: "Ten san pham" },
+      { key: "category", label: "Danh muc" },
+      { key: "price", label: "Gia san pham" },
+      { key: "stock", label: "So luong kho" },
+      { key: "brand", label: "Thuong hieu" },
+      { key: "tag", label: "Tag" },
+      { key: "description", label: "Mo ta san pham" },
+    ];
+
+    const missingField = requiredFields.find(
+      (field) => String(formData[field.key] || "").trim() === ""
+    );
+
+    if (missingField) {
+      setError(`${missingField.label} khong duoc de trong.`);
+      return;
+    }
+
     const data = new FormData();
-    data.append("name", formData.name);
-    data.append("category", formData.category);
-    data.append("price", parseFloat(formData.price));
-    data.append("description", formData.description);
-    data.append("stock", parseInt(formData.stock));
-    data.append("brand", formData.brand);
-    
-    data.append("tag", formData.tag);
+    data.append("name", String(formData.name || "").trim());
+    data.append("category", String(formData.category || "").trim());
+    data.append("price", String(formData.price || "").trim());
+    data.append("description", String(formData.description || "").trim());
+    data.append("stock", String(formData.stock || 0).trim());
+    data.append("brand", String(formData.brand || "").trim());
+    data.append("tag", String(formData.tag || "").trim());
 
     if (formData.image instanceof File) {
       data.append("image", formData.image);
-    } else if (typeof formData.image === "string" && formData.image !== "") {
-      data.append("image_url", formData.image);
+    } else if (
+      typeof formData.image === "string" &&
+      formData.image.trim() !== ""
+    ) {
+      data.append("image_url", formData.image.trim());
+    } else if (
+      typeof formData.image_url === "string" &&
+      formData.image_url.trim() !== ""
+    ) {
+      data.append("image_url", formData.image_url.trim());
     }
 
     try {
@@ -217,9 +243,9 @@ const startEdit = (product) => {
                 onChange={handleChange}
               />
               {/* ... các trường còn lại brand, sold, tag giữ nguyên ... */}
-              <input className="admin-input" name="brand" placeholder="Thương hiệu" value={formData.brand} onChange={handleChange} />
+              <input className="admin-input" name="brand" placeholder="Thương hiệu" value={formData.brand} onChange={handleChange} required />
               
-              <input className="admin-input" name="tag" placeholder="Tag" value={formData.tag} onChange={handleChange} />
+              <input className="admin-input" name="tag" placeholder="Tag" value={formData.tag} onChange={handleChange} required />
               <textarea
                 className="admin-input"
                 name="description"
