@@ -81,6 +81,7 @@ function ThanhToan() {
 
     const orderData = {
       user,
+      full_name: trimmedFullName,
       email: formData.email,
       phone: trimmedPhone,
       address: formData.address,

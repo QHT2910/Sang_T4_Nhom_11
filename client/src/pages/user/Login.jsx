@@ -52,7 +52,6 @@ export  function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center  from-orange-50 via-indigo-50 to-purple-100 py-10 px-2">
       <div className="w-full max-w-4xl bg-white/80 rounded-3xl shadow-2xl flex flex-col md:flex-row overflow-hidden backdrop-blur-md">
-        {/* Left: Welcome */}
         <div className="flex-1 flex flex-col justify-center items-center p-8  from-indigo-100 via-orange-100 to-white">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-700 text-white text-xs uppercase tracking-widest font-bold mb-4">
             Xin Chào !

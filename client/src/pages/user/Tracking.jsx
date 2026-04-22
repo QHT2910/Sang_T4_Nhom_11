@@ -21,7 +21,7 @@ const getOrderTotal = (order) =>
   Number(order.total || order.total_amount || order.total_price || 0);
 const getOrderStatus = (order) => {
   if (typeof order.status === "string") return order.status;
-  return order.status ? "delivered" : "pending";
+  return order.status ? "Dagiao" : "chuaxuly";
 };
 
 function Tracking() {
@@ -70,27 +70,27 @@ function Tracking() {
   }, [currentUser?.id, currentUser?.user_id]);
 
   const statusConfig = {
-    pending: {
+    chuaxuly: {
       label: "Cho xu ly",
       color: "text-yellow-600 bg-yellow-50 border-yellow-100",
       icon: <Clock size={16} />,
     },
-    processing: {
+    dangxuly: {
       label: "Đang chuẩn bị",
       color: "text-blue-600 bg-blue-50 border-blue-100",
       icon: <Package size={16} />,
     },
-    shipping: {
+    danggiao: {
       label: "Đang giao hàng",
       color: "text-purple-600 bg-purple-50 border-purple-100",
       icon: <Truck size={16} />,
     },
-    delivered: {
+    Dagiao: {
       label: "Da hoan thanh",
       color: "text-green-600 bg-green-50 border-green-100",
       icon: <CheckCircle size={16} />,
     },
-    deleted: {
+    dahuy: {
       label: "Da huy",
       color: "text-red-600 bg-red-50 border-red-100",
       icon: <XCircle size={16} />,
@@ -122,7 +122,7 @@ function Tracking() {
     setIsCancelling(true);
     try {
       await orderApi.updateOrderStatus(getOrderId(cancelOrder), {
-        status: "deleted",
+        status: "dahuy",
         reason: cancelReason.trim(),
         cancel_reason: cancelReason.trim(),
       });
@@ -181,10 +181,10 @@ function Tracking() {
             const orderDate = getOrderDate(order);
             const orderItems = getOrderItems(order);
             const statusKey = getOrderStatus(order);
-            const status = statusConfig[statusKey] || statusConfig.pending;
+            const status = statusConfig[statusKey] || statusConfig.chuaxuly;
             const isExpanded = expandedOrder === orderId;
             const canCancel =
-              statusKey === "pending" || statusKey === "processing";
+              statusKey === "chuaxuly" || statusKey === "dangxuly";
 
             return (
               <div

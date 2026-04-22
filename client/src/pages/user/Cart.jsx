@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { Trash2, Plus, Minus, ShoppingBag } from "lucide-react";
 
 function Cart() {
-  // Khởi tạo state trực tiếp từ localStorage để tránh render thừa
   const [cartItems, setCartItems] = useState(() => {
     const savedCart = localStorage.getItem("cart");
     return savedCart ? JSON.parse(savedCart) : [];

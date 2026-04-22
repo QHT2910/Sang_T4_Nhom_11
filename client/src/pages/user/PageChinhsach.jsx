@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 export function ChinhSach() {
-  // State để theo dõi người dùng đang xem tab chính sách nào
   const [activeTab, setActiveTab] = useState("bao-hanh");
 
   const ChinhSachMenu = [
@@ -66,10 +65,8 @@ export function ChinhSach() {
             </div>
           </aside>
 
-          {/* === CỘT PHẢI: NỘI DUNG CHÍNH SÁCH === */}
           <main className="w-full md:w-3/4">
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 md:p-8 min-h-[500px]">
-              {/* NỘI DUNG: BẢO HÀNH */}
               {activeTab === "bao-hanh" && (
                 <div className="animate-fadeIn">
                   <h2 className="text-2xl font-bold text-gray-900 mb-6 border-b pb-3">
@@ -125,7 +122,6 @@ export function ChinhSach() {
                 </div>
               )}
 
-              {/* NỘI DUNG: ĐỔI TRẢ */}
               {activeTab === "doi-tra" && (
                 <div className="animate-fadeIn">
                   <h2 className="text-2xl font-bold text-gray-900 mb-6 border-b pb-3">
@@ -176,7 +172,6 @@ export function ChinhSach() {
                 </div>
               )}
 
-              {/* NỘI DUNG: GIAO HÀNG */}
               {activeTab === "giao-hang" && (
                 <div className="animate-fadeIn">
                   <h2 className="text-2xl font-bold text-gray-900 mb-6 border-b pb-3">
@@ -231,7 +226,6 @@ export function ChinhSach() {
                 </div>
               )}
 
-              {/* NỘI DUNG: BẢO MẬT */}
               {activeTab === "bao-mat" && (
                 <div className="animate-fadeIn">
                   <h2 className="text-2xl font-bold text-gray-900 mb-6 border-b pb-3">
@@ -267,7 +261,6 @@ export function ChinhSach() {
         </div>
       </div>
 
-      {/* Thêm chút CSS cho hiệu ứng mượt mà (có thể bỏ vào file index.css của bạn) */}
       <style>{`
         .animate-fadeIn {
           animation: fadeIn 0.4s ease-in-out;
