@@ -4,6 +4,12 @@ import productApi from "../../services/productServices";
 import banerngang1 from "../../assets/images/gearvn-pc-gvn-t11-topbar.png";
 
 const normalizeCategory = (value) => String(value || "").trim().toLowerCase();
+const normalizeText = (value) =>
+  String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
 const getProductId = (product) => product?.id || product?.product_id;
 const priceBrackets = [
     { id: "all", label: "Tất cả mức giá", min: 0, max: Infinity },
@@ -17,7 +23,8 @@ function Product() {
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [manualSelectedCategory, setManualSelectedCategory] = useState("");
   const [selectedPriceId, setSelectedPriceId] = useState("all");
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const queryKey = searchParams.toString();
 
   
 
@@ -33,6 +40,12 @@ function Product() {
 
     loadProducts();
   }, []);
+
+  useEffect(() => {
+    setManualSelectedCategory("");
+    setSelectedBrands([]);
+    setSelectedPriceId("all");
+  }, [queryKey]);
 
   const categories = useMemo(
     () => [...new Set(products.map((p) => p.category_name).filter(Boolean))],
@@ -50,7 +63,7 @@ function Product() {
         normalizeCategory(category) === normalizeCategory(requestedCategory)
     ) || ""
   );
-}, [categories, searchParams]); // normalizeCategory ở ngoài nên thường không cần, nhưng nếu vẫn bị gạch vàng hãy thêm vào.
+}, [categories, searchParams]); 
 
 
   const selectedCategory = manualSelectedCategory || querySelectedCategory; // ưu tiên category từ query nếu người dùng chưa chọn gì ở UI
@@ -70,28 +83,48 @@ function Product() {
   
   const handleCategoryChange = (category) => {
     setManualSelectedCategory(category);
+    // Cập nhật URL query params
+    if (category === "") {
+      setSearchParams({});
+    } else {
+      setSearchParams({ category });
+    }
   };
   const searchQuery = useMemo(() => {
     return searchParams.get("search") || "";
   }, [searchParams]);
+  const normalizedSearchQuery = useMemo(
+    () => normalizeText(searchQuery),
+    [searchQuery]
+  );
 
 
-// 2. filteredProducts: Đảm bảo lọc search không bị "kẹt" bởi category cũ
 const filteredProducts = useMemo(() => {
   return products.filter((product) => {
-    // Lọc theo tên (Search)
-    const matchesSearch = searchQuery === "" || 
-      (product.name && product.name.toLowerCase().includes(searchQuery.toLowerCase()));
+    const searchableText = normalizeText(
+      [
+        product.name,
+        product.brand,
+        product.category_name,
+        product.tag,
+        product.description,
+      ]
+        .filter(Boolean)
+        .join(" ")
+    );
 
-    // Lọc theo thương hiệu
+    const matchesSearch =
+      normalizedSearchQuery === "" ||
+      searchableText.includes(normalizedSearchQuery);
+
     const matchesBrand =
       selectedBrands.length === 0 || selectedBrands.includes(product.brand);
-    
-    // Lọc theo danh mục
+
     const matchesCategory =
-      selectedCategory === "" || product.category_name === selectedCategory;
+      selectedCategory === "" ||
+      normalizeCategory(product.category_name) === normalizeCategory(selectedCategory);
     
-    // Lọc theo giá
+ 
     const bracket = priceBrackets.find((b) => b.id === selectedPriceId) || priceBrackets[0];
     const matchesPrice =
       Number(product.price) >= bracket.min &&
@@ -99,7 +132,7 @@ const filteredProducts = useMemo(() => {
 
     return matchesSearch && matchesBrand && matchesCategory && matchesPrice;
   });
-}, [products, searchQuery, selectedBrands, selectedCategory, selectedPriceId]);
+}, [products, normalizedSearchQuery, selectedBrands, selectedCategory, selectedPriceId]);
 
   return (
     <div className="w-full max-w-[1200px] mx-auto mb-6 px-4 md:px-0">

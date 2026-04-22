@@ -10,12 +10,20 @@ import {
 import orderApi from "../../services/orderServices";
 
 const statusColors = {
-  pending: "bg-yellow-100 text-yellow-700 border-yellow-200",
-  processing: "bg-blue-100 text-blue-700 border-blue-200",
-  shipping: "bg-purple-100 text-purple-700 border-purple-200",
-  delivered: "bg-green-100 text-green-700 border-green-200",
-  deleted: "bg-red-100 text-red-700 border-red-200",
+  chuaxuly: "bg-yellow-100 text-yellow-700 border-yellow-200",
+  dangxuly: "bg-blue-100 text-blue-700 border-blue-200",
+  danggiao: "bg-purple-100 text-purple-700 border-purple-200",
+  Dagiao: "bg-green-100 text-green-700 border-green-200",
+  dahuy: "bg-red-100 text-red-700 border-red-200",
 };
+
+const statusOptions = [
+  { value: "chuaxuly", label: "Chờ xử lý" },
+  { value: "dangxuly", label: "Đang chuẩn bị" },
+  { value: "danggiao", label: "Đang giao" },
+  { value: "Dagiao", label: "Đã giao" },
+  { value: "dahuy", label: "Đã hủy" },
+];
 
 const getOrderId = (order) => order?.id || order?.order_id || "";
 const getOrderCustomerName = (order) =>
@@ -31,6 +39,7 @@ const getOrderDate = (order) =>
 const getOrderTotal = (order) =>
   Number(order?.total ?? order?.total_amount ?? order?.total_price ?? 0);
 const getOrderItems = (order) => order?.items || order?.order_items || [];
+const getOrderStatus = (order) => String(order?.status || "").trim() || "chuaxuly";
 
 function formatOrderDate(value) {
   if (!value) return "--";
@@ -50,7 +59,7 @@ function AdminOrder() {
       const res = await orderApi.getOrders();
       setOrders(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      console.error("Lỗi khi tải đơn hàng:", err);
+      console.error("Loi khi tai don hang:", err);
     } finally {
       setLoading(false);
     }
@@ -62,16 +71,16 @@ function AdminOrder() {
 
   const filteredOrders = orders.filter((order) => {
     if (filterStatus === "all") return true;
-    return order.status === filterStatus;
+    return getOrderStatus(order) === filterStatus;
   });
 
   const handleUpdateStatus = async (id, newStatus) => {
     try {
       await orderApi.updateOrderStatus(id, newStatus);
-      alert("Cập nhật trạng thái thành công!");
+      alert("Cập nhật thành công!");
       fetchOrders();
     } catch (error) {
-      console.error("Lỗi khi cập nhật trạng thái:", error);
+      console.error("Lỗi khi cập nhật:", error);
       alert("Lỗi khi cập nhật trạng thái");
     }
   };
@@ -100,10 +109,10 @@ function AdminOrder() {
         <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
           <div>
             <h1 className="text-2xl font-black uppercase tracking-tight text-gray-800">
-              Quản Lý Đơn Hàng
+              Quản lý đơn hàng
             </h1>
             <p className="text-sm text-gray-500">
-              Theo dõi và xử lý các giao dịch trên hệ thống
+              Theo dõi và xử lý các đơn hàng
             </p>
           </div>
 
@@ -119,11 +128,11 @@ function AdminOrder() {
                 className="rounded-xl border border-gray-200 bg-white py-2 pl-10 pr-4 text-sm font-bold outline-none transition-all focus:ring-2 focus:ring-red-500"
               >
                 <option value="all">Tất cả trạng thái</option>
-                <option value="pending">Chờ xử lý</option>
-                <option value="processing">Đang chuẩn bị</option>
-                <option value="shipping">Đang giao</option>
-                <option value="delivered">Đã giao</option>
-                <option value="deleted">Đã hủy</option>
+                {statusOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -146,85 +155,89 @@ function AdminOrder() {
             <table className="w-full border-collapse text-left">
               <thead>
                 <tr className="border-b border-gray-100 bg-gray-50/50 text-[10px] font-black uppercase tracking-widest text-gray-400">
-                  <th className="p-5">Mã Đơn</th>
-                  <th className="p-5">Khách Hàng</th>
-                  <th className="p-5">Ngày Đặt</th>
-                  <th className="p-5">Tổng Tiền</th>
-                  <th className="p-5 text-center">Trạng Thái</th>
-                  <th className="p-5 text-center">Thao Tác</th>
+                  <th className="p-5">Mã đơn</th>
+                  <th className="p-5">Khách hàng</th>
+                  <th className="p-5">Ngày đặt</th>
+                  <th className="p-5">Tổng tiền</th>
+                  <th className="p-5 text-center">Trạng thái</th>
+                  <th className="p-5 text-center">Thao tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
                 {filteredOrders.length > 0 ? (
-                  filteredOrders.map((order) => (
-                    <tr
-                      key={getOrderId(order)}
-                      className="group transition-colors hover:bg-gray-50/30"
-                    >
-                      <td className="p-5 font-mono text-sm font-bold text-red-600">
-                        #{getOrderId(order)}
-                      </td>
-                      <td className="p-5">
-                        <div className="text-sm font-bold text-gray-800">
-                          {getOrderCustomerName(order)}
-                        </div>
-                        <div className="text-[10px] font-medium text-gray-400">
-                          {getOrderPhone(order)}
-                        </div>
-                      </td>
-                      <td className="p-5 text-xs font-medium text-gray-500">
-                        {formatOrderDate(getOrderDate(order))}
-                      </td>
-                      <td className="p-5">
-                        <p className="text-2xl font-black text-red-600">
-                          {getOrderTotal(order).toLocaleString("vi-VN")} đ
-                        </p>
-                      </td>
-                      <td className="p-5">
-                        <div className="flex justify-center">
-                          <select
-                            value={order.status}
-                            onChange={(e) =>
-                              handleUpdateStatus(getOrderId(order), e.target.value)
-                            }
-                            disabled={order.status === "deleted"}
-                            className={`cursor-pointer rounded-full border border-transparent px-3 py-1.5 text-[10px] font-black uppercase outline-none transition-all ${statusColors[order.status] || "bg-slate-100 text-slate-700 border-slate-200"}`}
-                          >
-                            <option value="pending">Chờ xử lý</option>
-                            <option value="processing">Đang chuẩn bị</option>
-                            <option value="shipping">Đang giao</option>
-                            <option value="delivered">Đã giao</option>
-                            <option value="deleted">Đã hủy</option>
-                          </select>
-                        </div>
-                      </td>
-                      <td className="p-5 text-center">
-                        <div className="flex justify-center gap-2">
-                          <button
-                            onClick={() => setSelectedOrder(order)}
-                            className="rounded-lg p-2 text-blue-500 transition-colors hover:bg-blue-50"
-                            title="Xem chi tiết"
-                          >
-                            <Eye size={18} />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(getOrderId(order))}
-                            className="rounded-lg p-2 text-red-400 transition-colors hover:bg-red-50"
-                            title="Xóa đơn"
-                          >
-                            <Trash2 size={18} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
+                  filteredOrders.map((order) => {
+                    const orderStatus = getOrderStatus(order);
+
+                    return (
+                      <tr
+                        key={getOrderId(order)}
+                        className="group transition-colors hover:bg-gray-50/30"
+                      >
+                        <td className="p-5 font-mono text-sm font-bold text-red-600">
+                          #{getOrderId(order)}
+                        </td>
+                        <td className="p-5">
+                          <div className="text-sm font-bold text-gray-800">
+                            {getOrderCustomerName(order)}
+                          </div>
+                          <div className="text-[10px] font-medium text-gray-400">
+                            {getOrderPhone(order)}
+                          </div>
+                        </td>
+                        <td className="p-5 text-xs font-medium text-gray-500">
+                          {formatOrderDate(getOrderDate(order))}
+                        </td>
+                        <td className="p-5">
+                          <p className="text-2xl font-black text-red-600">
+                            {getOrderTotal(order).toLocaleString("vi-VN")} d
+                          </p>
+                        </td>
+                        <td className="p-5">
+                          <div className="flex justify-center">
+                            <select
+                              value={orderStatus}
+                              onChange={(e) =>
+                                handleUpdateStatus(getOrderId(order), e.target.value)
+                              }
+                              disabled={orderStatus === "dahuy"}
+                              className={`cursor-pointer rounded-full border border-transparent px-3 py-1.5 text-[10px] font-black uppercase outline-none transition-all ${statusColors[orderStatus] || "bg-slate-100 text-slate-700 border-slate-200"}`}
+                            >
+                              {statusOptions.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                  {option.label}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </td>
+                        <td className="p-5 text-center">
+                          <div className="flex justify-center gap-2">
+                            <button
+                              onClick={() => setSelectedOrder(order)}
+                              className="rounded-lg p-2 text-blue-500 transition-colors hover:bg-blue-50"
+                              title="Xem chi tiet"
+                            >
+                              <Eye size={18} />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(getOrderId(order))}
+                              className="rounded-lg p-2 text-red-400 transition-colors hover:bg-red-50"
+                              title="Xoa don"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
                 ) : (
                   <tr>
                     <td
                       colSpan="6"
                       className="p-20 text-center text-sm italic text-gray-400"
                     >
-                      Không tìm thấy đơn hàng nào phù hợp.
+                      Không tìm thấy đơn hàng phù hợp.
                     </td>
                   </tr>
                 )}
@@ -241,7 +254,7 @@ function AdminOrder() {
               <div className="flex items-center gap-2">
                 <ShoppingCart className="text-red-600" size={20} />
                 <h2 className="font-black uppercase tracking-tight text-gray-800">
-                  Chi Tiết Đơn Hàng #{getOrderId(selectedOrder)}
+                  Chi tiết đơn hàng #{getOrderId(selectedOrder)}
                 </h2>
               </div>
               <button
@@ -256,7 +269,7 @@ function AdminOrder() {
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
                   <p className="mb-1 text-[10px] font-bold uppercase text-gray-400">
-                    Người Đặt
+                    Người đặt
                   </p>
                   <p className="font-bold text-gray-800">
                     {getOrderCustomerName(selectedOrder)}
@@ -265,7 +278,7 @@ function AdminOrder() {
                 </div>
                 <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
                   <p className="mb-1 text-[10px] font-bold uppercase text-gray-400">
-                    Ngày Đặt
+                    Ngày đặt
                   </p>
                   <p className="font-medium text-gray-700">
                     {formatOrderDate(getOrderDate(selectedOrder))}
@@ -273,7 +286,7 @@ function AdminOrder() {
                 </div>
                 <div className="col-span-2 rounded-2xl border border-gray-100 bg-gray-50 p-4">
                   <p className="mb-1 text-[10px] font-bold uppercase text-gray-400">
-                    Địa Chỉ Giao Hàng
+                    Địa chỉ giao hàng
                   </p>
                   <p className="font-medium leading-tight text-gray-700">
                     {selectedOrder.address || "--"}
@@ -283,7 +296,7 @@ function AdminOrder() {
 
               <div className="space-y-3">
                 <p className="text-xs font-black uppercase tracking-widest text-gray-400">
-                  Sản Phẩm Đã Đặt
+                  Chi tiết sản phẩm
                 </p>
                 {getOrderItems(selectedOrder).length > 0 ? (
                   getOrderItems(selectedOrder).map((item, idx) => (
@@ -298,17 +311,17 @@ function AdminOrder() {
                       />
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-bold text-gray-800">
-                          {item.name || item.product_name || item.product || "Sản phẩm"}
+                          {item.name || item.product_name || item.product || "San pham"}
                         </p>
                         <p className="text-xs font-medium text-gray-400">
-                          Số Lượng: {item.quantity}
+                          So Luong: {item.quantity}
                         </p>
                       </div>
                       <p className="text-sm font-black text-gray-900">
                         {(
                           Number(item.price || 0) * Number(item.quantity || 0)
                         ).toLocaleString("vi-VN")}{" "}
-                        đ
+                        d
                       </p>
                     </div>
                   ))
@@ -322,10 +335,10 @@ function AdminOrder() {
 
             <div className="flex items-center justify-between border-t bg-gray-50 p-6">
               <div className="text-xs font-bold uppercase text-gray-500">
-                Tổng Thanh Toán
+                Tổng thanh toán
               </div>
               <div className="text-2xl font-black text-red-600">
-                {getOrderTotal(selectedOrder).toLocaleString("vi-VN")} đ
+                {getOrderTotal(selectedOrder).toLocaleString("vi-VN")} d
               </div>
             </div>
           </div>

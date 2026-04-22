@@ -8,10 +8,18 @@ const emptyForm = {
   description: "",
   stock: "",
   image: "",
+  image_preview: "",
   image_url: "",
   brand: "",
   tag: "",
 };
+
+const normalizeText = (value) =>
+  String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
 
 function AdminProduct() {
   const [products, setProducts] = useState([]);
@@ -59,11 +67,11 @@ function AdminProduct() {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      
       const previewUrl = URL.createObjectURL(file);
-      setFormData({ 
-        ...formData, 
+      setFormData({
+        ...formData,
         image: file, 
+        image_url: "",
         image_preview: previewUrl 
       });
     }
@@ -81,18 +89,17 @@ function AdminProduct() {
     }
   };
 
- // AdminProducts.jsx
 
 const startEdit = (product) => {
   setEditingId(product.id);
   setFormData({
     name: product.name || "",
-    // CHỈ LẤY ID: Nếu category là object thì lấy id, nếu là số thì giữ nguyên
-    category: product.category?.id || product.category?.category_id || product.category || "", 
+    category: product.category?.id || product.category?.category_id || product.category || "",
     price: product.price || "",
     description: product.description || "",
     stock: product.stock || "",
     image: product.image || product.image_url || "",
+    image_preview: "",
     image_url: product.image_url || "",
     brand: product.brand || "",
     tag: product.tag || "",
@@ -105,13 +112,13 @@ const startEdit = (product) => {
     setError("");
 
     const requiredFields = [
-      { key: "name", label: "Ten san pham" },
-      { key: "category", label: "Danh muc" },
-      { key: "price", label: "Gia san pham" },
-      { key: "stock", label: "So luong kho" },
-      { key: "brand", label: "Thuong hieu" },
+      { key: "name", label: "Tên sản phẩm" },
+      { key: "category", label: "Danh mục" },
+      { key: "price", label: "Giá sản phẩm" },
+      { key: "stock", label: "Số lượng kho" },
+      { key: "brand", label: "Thương hiệu" },
       { key: "tag", label: "Tag" },
-      { key: "description", label: "Mo ta san pham" },
+      { key: "description", label: "Mô tả sản phẩm" },
     ];
 
     const missingField = requiredFields.find(
@@ -119,16 +126,29 @@ const startEdit = (product) => {
     );
 
     if (missingField) {
-      setError(`${missingField.label} khong duoc de trong.`);
+      setError(`${missingField.label} Không được để trống.`);
+      return;
+    }
+
+    const normalizedPrice = Number(formData.price);
+    const normalizedStock = Number(formData.stock);
+
+    if (!Number.isFinite(normalizedPrice) || normalizedPrice <= 0) {
+      setError("Giá sản phẩm phải là số lớn hơn 0.");
+      return;
+    }
+
+    if (!Number.isInteger(normalizedStock) || normalizedStock < 0) {
+      setError("Số lượng kho phải là số nguyên từ 0 trở lên.");
       return;
     }
 
     const data = new FormData();
     data.append("name", String(formData.name || "").trim());
     data.append("category", String(formData.category || "").trim());
-    data.append("price", String(formData.price || "").trim());
+    data.append("price", String(normalizedPrice));
     data.append("description", String(formData.description || "").trim());
-    data.append("stock", String(formData.stock || 0).trim());
+    data.append("stock", String(normalizedStock));
     data.append("brand", String(formData.brand || "").trim());
     data.append("tag", String(formData.tag || "").trim());
 
@@ -172,9 +192,14 @@ const startEdit = (product) => {
     }
   };
 
-  const filteredProducts = products.filter((p) =>
-    p.name?.toLowerCase().includes(query.toLowerCase())
-  );
+  const filteredProducts = products.filter((p) => {
+    const searchableText = normalizeText(
+      [p.name, p.brand, p.tag, p.category_name, p.description]
+        .filter(Boolean)
+        .join(" ")
+    );
+    return searchableText.includes(normalizeText(query));
+  });
 
   return (
     <div className="admin-users-page">

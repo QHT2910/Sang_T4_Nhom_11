@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import productApi from "../../services/productServices.js";
@@ -12,7 +12,7 @@ import baner3 from "../../assets/images/banermini5.png";
 import banerngang from "../../assets/images/banerdocdai1.png";
 import banerngang2 from "../../assets/images/banerdocdai2.png"; 
 import CategoryApi from "../../services/categoryServices.js";
-import { use } from "react";
+
 
 //vi du goi trong compose
 
@@ -102,6 +102,7 @@ function Home() {
     fetchCategories();
   }, [] );
 
+
   // const laptopProducts = useMemo(
   //    () =>
   //      products.filter(
@@ -118,6 +119,20 @@ function Home() {
   //     }),
   //   [products]
   //  );
+
+  // const pcProducts = useMemo(
+  //   () =>
+  //     products.filter((product) => {
+  //       const category = normalizeCategory(product.category_name);
+  //       return (
+  //         category === "pc" ||
+  //         category === "may tinh" ||
+  //         category === "máy tính"
+  //       );
+  //     }),
+  //   [products]
+  // );
+
 
   return (
     <main className="bg-[#f5f5f5] pb-10">
@@ -144,6 +159,7 @@ function Home() {
               >
                 Tất cả sản phẩm 
               </Link>
+
               <Link
                 to="/"
                 className="px-[10px] py-[12px] text-[13px] font-semibold text-[#333] hover:text-[#d70018] whitespace-nowrap transition-colors"
@@ -160,6 +176,9 @@ function Home() {
                 </Link>
               ))}
               {/* <Link
+              
+              <Link
+>>>>>>> 5a5aa20b765cd19fcdc781ec6282993bfd684d4a
                 to="/product?category=PC"
                 className="px-[10px] py-[12px] text-[13px] font-semibold text-[#333] hover:text-[#d70018] whitespace-nowrap transition-colors"
               >

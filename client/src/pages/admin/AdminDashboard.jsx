@@ -438,9 +438,9 @@ export default function AdminDashboard() {
             </h2>
             <div className="mt-5 space-y-3">
               {loading ? (
-                <p className="text-sm text-slate-500">Dang tai du lieu...</p>
+                <p className="text-sm text-slate-500">Đang tải dữ liệu...</p>
               ) : recentUsers.length === 0 ? (
-                <p className="text-sm text-slate-500">Chua co nguoi dung nao.</p>
+                <p className="text-sm text-slate-500">Chưa có người dùng nào.</p>
               ) : (
                 recentUsers.map((user) => {
                   const roleLabel = user.is_superuser
@@ -493,9 +493,9 @@ export default function AdminDashboard() {
 
             <div className="mt-5 space-y-3">
               {loading ? (
-                <p className="text-sm text-slate-500">Dang tai du lieu...</p>
+                <p className="text-sm text-slate-500">Đang tải dữ liệu...</p>
               ) : topProducts.length === 0 ? (
-                <p className="text-sm text-slate-500">Chua co san pham nao.</p>
+                <p className="text-sm text-slate-500">Chưa có sản phẩm nào.</p>
               ) : (
                 topProducts.map((product, index) => (
                   <div
