@@ -14,6 +14,8 @@ import {
   X,
 } from "lucide-react";
 
+const ORDER_STATUSES = ["chuaxuly", "dangxuly", "danggiao", "Dagiao", "dahuy"];
+
 const getOrderId = (order) => order.order_id || order.id;
 const getOrderDate = (order) => order.order_date || order.created_at;
 const getOrderItems = (order) => order.order_items || order.items || [];
@@ -59,7 +61,7 @@ function Tracking() {
       });
       setOrders(sortedOrders);
     } catch (err) {
-      console.error("Lỗi tải đơn hàng:", err);
+      console.error("Loi tai don hang:", err);
     } finally {
       setLoading(false);
     }
@@ -130,7 +132,7 @@ function Tracking() {
       await fetchOrders();
       alert("Da huy don hang.");
     } catch (error) {
-      console.error("Lỗi khi hủy đơn:", error);
+      console.error("Loi khi huy don:", error);
       alert(
         error?.response?.data?.message ||
           error?.response?.data?.detail ||
@@ -165,7 +167,7 @@ function Tracking() {
           <ShoppingBag size={64} className="mx-auto mb-4 text-gray-200" />
           <h3 className="text-xl font-bold text-gray-800">Chua co don hang</h3>
           <p className="mb-6 mt-2 text-gray-500">
-            Chưa thực hiện giao dịch nào.
+            Chua thuc hien giao dich nao.
           </p>
           <a
             href="/product"

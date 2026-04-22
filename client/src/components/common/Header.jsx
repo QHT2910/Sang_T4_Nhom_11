@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import logoimg from "../../assets/images/logo.png";
+import orderApi from "../../services/orderServices";
 
 function getCartCount() {
   try {
@@ -22,6 +23,7 @@ function Header() {
   const storedRole = localStorage.getItem("role") || "user";
   const [isOpen, setIsOpen] = useState(false);
   const [cartCount, setCartCount] = useState(() => getCartCount());
+  const [orderCount, setOrderCount] = useState(0);
 
   const toggleMenu = (e) => {
     e.stopPropagation();
@@ -73,23 +75,42 @@ function Header() {
     localStorage.clear();
     setIsOpen(false);
     setCartCount(0);
+    setOrderCount(0);
     navigate("/login");
   };
-
-  const orderCount = 1;
 
   useEffect(() => {
     const syncCartCount = () => {
       setCartCount(getCartCount());
     };
 
+    const syncOrderCount = async () => {
+      if (!localStorage.getItem("token")) {
+        setOrderCount(0);
+        return;
+      }
+
+      try {
+        const res = await orderApi.getUserOrders();
+        setOrderCount(Array.isArray(res.data) ? res.data.length : 0);
+      } catch (error) {
+        console.error("Failed to load order count", error);
+        setOrderCount(0);
+      }
+    };
+
     syncCartCount();
+    syncOrderCount();
     window.addEventListener("cartChange", syncCartCount);
+    window.addEventListener("orderChange", syncOrderCount);
     window.addEventListener("storage", syncCartCount);
+    window.addEventListener("storage", syncOrderCount);
 
     return () => {
       window.removeEventListener("cartChange", syncCartCount);
+      window.removeEventListener("orderChange", syncOrderCount);
       window.removeEventListener("storage", syncCartCount);
+      window.removeEventListener("storage", syncOrderCount);
     };
   }, []);
 

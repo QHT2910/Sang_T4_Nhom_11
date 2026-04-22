@@ -109,10 +109,10 @@ function AdminOrder() {
         <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
           <div>
             <h1 className="text-2xl font-black uppercase tracking-tight text-gray-800">
-              Quan Ly Don Hang
+              Quản lý đơn hàng
             </h1>
             <p className="text-sm text-gray-500">
-              Theo doi va xu ly cac giao dich tren he thong
+              Theo dõi và xử lý các đơn hàng
             </p>
           </div>
 
@@ -155,12 +155,12 @@ function AdminOrder() {
             <table className="w-full border-collapse text-left">
               <thead>
                 <tr className="border-b border-gray-100 bg-gray-50/50 text-[10px] font-black uppercase tracking-widest text-gray-400">
-                  <th className="p-5">Ma Don</th>
-                  <th className="p-5">Khach Hang</th>
-                  <th className="p-5">Ngay Dat</th>
-                  <th className="p-5">Tong Tien</th>
-                  <th className="p-5 text-center">Trang Thai</th>
-                  <th className="p-5 text-center">Thao Tac</th>
+                  <th className="p-5">Mã đơn</th>
+                  <th className="p-5">Khách hàng</th>
+                  <th className="p-5">Ngày đặt</th>
+                  <th className="p-5">Tổng tiền</th>
+                  <th className="p-5 text-center">Trạng thái</th>
+                  <th className="p-5 text-center">Thao tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
@@ -237,7 +237,7 @@ function AdminOrder() {
                       colSpan="6"
                       className="p-20 text-center text-sm italic text-gray-400"
                     >
-                      Khong tim thay don hang nao phu hop.
+                      Không tìm thấy đơn hàng phù hợp.
                     </td>
                   </tr>
                 )}
@@ -254,7 +254,7 @@ function AdminOrder() {
               <div className="flex items-center gap-2">
                 <ShoppingCart className="text-red-600" size={20} />
                 <h2 className="font-black uppercase tracking-tight text-gray-800">
-                  Chi Tiet Don Hang #{getOrderId(selectedOrder)}
+                  Chi tiết đơn hàng #{getOrderId(selectedOrder)}
                 </h2>
               </div>
               <button
@@ -269,7 +269,7 @@ function AdminOrder() {
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
                   <p className="mb-1 text-[10px] font-bold uppercase text-gray-400">
-                    Nguoi Dat
+                    Người đặt
                   </p>
                   <p className="font-bold text-gray-800">
                     {getOrderCustomerName(selectedOrder)}
@@ -278,7 +278,7 @@ function AdminOrder() {
                 </div>
                 <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
                   <p className="mb-1 text-[10px] font-bold uppercase text-gray-400">
-                    Ngay Dat
+                    Ngày đặt
                   </p>
                   <p className="font-medium text-gray-700">
                     {formatOrderDate(getOrderDate(selectedOrder))}
@@ -286,7 +286,7 @@ function AdminOrder() {
                 </div>
                 <div className="col-span-2 rounded-2xl border border-gray-100 bg-gray-50 p-4">
                   <p className="mb-1 text-[10px] font-bold uppercase text-gray-400">
-                    Dia Chi Giao Hang
+                    Địa chỉ giao hàng
                   </p>
                   <p className="font-medium leading-tight text-gray-700">
                     {selectedOrder.address || "--"}
@@ -296,7 +296,7 @@ function AdminOrder() {
 
               <div className="space-y-3">
                 <p className="text-xs font-black uppercase tracking-widest text-gray-400">
-                  San Pham Da Dat
+                  Chi tiết sản phẩm
                 </p>
                 {getOrderItems(selectedOrder).length > 0 ? (
                   getOrderItems(selectedOrder).map((item, idx) => (
@@ -335,7 +335,7 @@ function AdminOrder() {
 
             <div className="flex items-center justify-between border-t bg-gray-50 p-6">
               <div className="text-xs font-bold uppercase text-gray-500">
-                Tong Thanh Toan
+                Tổng thanh toán
               </div>
               <div className="text-2xl font-black text-red-600">
                 {getOrderTotal(selectedOrder).toLocaleString("vi-VN")} d
