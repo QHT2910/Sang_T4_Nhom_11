@@ -40,7 +40,9 @@ function Product() {
   );
   const querySelectedCategory = useMemo(() => {
   const requestedCategory = searchParams.get("category");
-  if (!requestedCategory || categories.length === 0) return "";
+  // trường hợp không có query category nào hoặc categories đang rỗng, trả về "" để hiển thị tất cả
+  // bỏ điều kiện categories.length > 0 vì nếu categories đang rỗng thì chắc chắn không tìm thấy category nào khớp, và sẽ trả về "" như mong muốn
+  if (!requestedCategory ) return "";
 
   return (
     categories.find(
@@ -51,7 +53,7 @@ function Product() {
 }, [categories, searchParams]); // normalizeCategory ở ngoài nên thường không cần, nhưng nếu vẫn bị gạch vàng hãy thêm vào.
 
 
-  const selectedCategory = manualSelectedCategory || querySelectedCategory;
+  const selectedCategory = manualSelectedCategory || querySelectedCategory; // ưu tiên category từ query nếu người dùng chưa chọn gì ở UI
 
   const brands = useMemo(
     () => [...new Set(products.map((p) => p.brand).filter(Boolean))],
