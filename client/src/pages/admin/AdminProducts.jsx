@@ -112,13 +112,13 @@ const startEdit = (product) => {
     setError("");
 
     const requiredFields = [
-      { key: "name", label: "Ten san pham" },
-      { key: "category", label: "Danh muc" },
-      { key: "price", label: "Gia san pham" },
-      { key: "stock", label: "So luong kho" },
-      { key: "brand", label: "Thuong hieu" },
+      { key: "name", label: "Tên sản phẩm" },
+      { key: "category", label: "Danh mục" },
+      { key: "price", label: "Giá sản phẩm" },
+      { key: "stock", label: "Số lượng kho" },
+      { key: "brand", label: "Thương hiệu" },
       { key: "tag", label: "Tag" },
-      { key: "description", label: "Mo ta san pham" },
+      { key: "description", label: "Mô tả sản phẩm" },
     ];
 
     const missingField = requiredFields.find(
@@ -126,7 +126,7 @@ const startEdit = (product) => {
     );
 
     if (missingField) {
-      setError(`${missingField.label} khong duoc de trong.`);
+      setError(`${missingField.label} Không được để trống.`);
       return;
     }
 
@@ -134,12 +134,12 @@ const startEdit = (product) => {
     const normalizedStock = Number(formData.stock);
 
     if (!Number.isFinite(normalizedPrice) || normalizedPrice <= 0) {
-      setError("Gia san pham phai la so lon hon 0.");
+      setError("Giá sản phẩm phải là số lớn hơn 0.");
       return;
     }
 
     if (!Number.isInteger(normalizedStock) || normalizedStock < 0) {
-      setError("So luong kho phai la so nguyen tu 0 tro len.");
+      setError("Số lượng kho phải là số nguyên từ 0 trở lên.");
       return;
     }
 

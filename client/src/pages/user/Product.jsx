@@ -23,7 +23,7 @@ function Product() {
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [manualSelectedCategory, setManualSelectedCategory] = useState("");
   const [selectedPriceId, setSelectedPriceId] = useState("all");
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const queryKey = searchParams.toString();
 
   
@@ -81,6 +81,12 @@ function Product() {
   
   const handleCategoryChange = (category) => {
     setManualSelectedCategory(category);
+    // Cập nhật URL query params
+    if (category === "") {
+      setSearchParams({});
+    } else {
+      setSearchParams({ category });
+    }
   };
   const searchQuery = useMemo(() => {
     return searchParams.get("search") || "";
