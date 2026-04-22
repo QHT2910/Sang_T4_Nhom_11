@@ -18,11 +18,11 @@ const statusColors = {
 };
 
 const statusOptions = [
-  { value: "chuaxuly", label: "Cho xu ly" },
-  { value: "dangxuly", label: "Dang chuan bi" },
-  { value: "danggiao", label: "Dang giao" },
-  { value: "Dagiao", label: "Da giao" },
-  { value: "dahuy", label: "Da huy" },
+  { value: "chuaxuly", label: "Chờ xử lý" },
+  { value: "dangxuly", label: "Đang chuẩn bị" },
+  { value: "danggiao", label: "Đang giao" },
+  { value: "Dagiao", label: "Đã giao" },
+  { value: "dahuy", label: "Đã hủy" },
 ];
 
 const getOrderId = (order) => order?.id || order?.order_id || "";
@@ -77,28 +77,28 @@ function AdminOrder() {
   const handleUpdateStatus = async (id, newStatus) => {
     try {
       await orderApi.updateOrderStatus(id, newStatus);
-      alert("Cap nhat trang thai thanh cong!");
+      alert("Cập nhật thành công!");
       fetchOrders();
     } catch (error) {
-      console.error("Loi khi cap nhat trang thai:", error);
-      alert("Loi khi cap nhat trang thai");
+      console.error("Lỗi khi cập nhật:", error);
+      alert("Lỗi khi cập nhật trạng thái");
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Ban co chac chan muon xoa don hang nay?")) return;
+    if (!window.confirm("Bạn có chắc chắn muốn xóa đơn hàng này?")) return;
 
     try {
       await orderApi.deleteOrder(id);
-      alert("Da xoa don hang thanh cong!");
+      alert("Đã xóa đơn hàng thành công!");
       if (getOrderId(selectedOrder) === id) {
         setSelectedOrder(null);
       }
       fetchOrders();
     } catch (error) {
-      console.error("Loi khi xoa don hang:", error);
+      console.error("Lỗi khi xóa đơn hàng:", error);
       alert(
-        error?.response?.data?.message || "Loi khi thuc hien xoa don hang."
+        error?.response?.data?.message || "Lỗi khi thực hiện xóa đơn hàng."
       );
     }
   };
@@ -127,7 +127,7 @@ function AdminOrder() {
                 onChange={(e) => setFilterStatus(e.target.value)}
                 className="rounded-xl border border-gray-200 bg-white py-2 pl-10 pr-4 text-sm font-bold outline-none transition-all focus:ring-2 focus:ring-red-500"
               >
-                <option value="all">Tat ca trang thai</option>
+                <option value="all">Tất cả trạng thái</option>
                 {statusOptions.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -327,7 +327,7 @@ function AdminOrder() {
                   ))
                 ) : (
                   <div className="rounded-2xl border border-dashed border-gray-200 p-5 text-sm text-gray-400">
-                    Khong co chi tiet san pham.
+                    Không có chi tiết sản phẩm.
                   </div>
                 )}
               </div>

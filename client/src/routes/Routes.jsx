@@ -37,14 +37,14 @@ export const router = createBrowserRouter([
 
       { path: "/about", element: <About /> },
       { path: "/contact", element: <Contact /> },
-      { path: "/product", element: <Product /> },
-      { path: "/product/:id", element: <ProductDetail /> },
       { path: "/product/laptop", element: <Laptop /> },
       { path: "/product/pc", element: <Pc /> },
-      { path: "/pay", element: <ThanhToan /> },
+      { path: "/product", element: <Product /> },
+      { path: "/product/:id", element: <ProductDetail /> },
+      { path: "/pay", element: <ProtectedRoute><ThanhToan /></ProtectedRoute> },
       { path: "/chinhsach", element: <ChinhSach /> },
       { path: "/Cart", element: <Cart /> },
-      {path: "/tracking", element: <Tracking />},
+      {path: "/tracking", element: <ProtectedRoute><Tracking /></ProtectedRoute>},
       {path: "/userinfo", element:(
         <ProtectedRoute><UserInfo /></ProtectedRoute>)
          }
