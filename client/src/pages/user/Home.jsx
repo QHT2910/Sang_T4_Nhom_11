@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
 import productApi from "../../services/productServices.js";
@@ -12,7 +12,6 @@ import baner3 from "../../assets/images/banermini5.png";
 import banerngang from "../../assets/images/banerdocdai1.png";
 import banerngang2 from "../../assets/images/banerdocdai2.png"; 
 import CategoryApi from "../../services/categoryServices.js";
-
 
 //vi du goi trong compose
 
@@ -102,37 +101,22 @@ function Home() {
     fetchCategories();
   }, [] );
 
+  const laptopProducts = useMemo(
+     () =>
+       products.filter(
+         (product) => normalizeCategory(product.category_name) === "laptop"
+       ),
+     [products]
+   );
 
-  // const laptopProducts = useMemo(
-  //    () =>
-  //      products.filter(
-  //        (product) => normalizeCategory(product.category_name) === "laptop"
-  //      ),
-  //    [products]
-  //  );
-
-  // const pcProducts = useMemo(
-  //    () =>
-  //      products.filter((product) => {
-  //       const category = normalizeCategory(product.category_name);
-  //       return category === "pc" || category === "may tinh";
-  //     }),
-  //   [products]
-  //  );
-
-  // const pcProducts = useMemo(
-  //   () =>
-  //     products.filter((product) => {
-  //       const category = normalizeCategory(product.category_name);
-  //       return (
-  //         category === "pc" ||
-  //         category === "may tinh" ||
-  //         category === "máy tính"
-  //       );
-  //     }),
-  //   [products]
-  // );
-
+  const pcProducts = useMemo(
+     () =>
+       products.filter((product) => {
+        const category = normalizeCategory(product.category_name);
+        return category === "pc" || category === "may tinh";
+      }),
+    [products]
+   );
 
   return (
     <main className="bg-[#f5f5f5] pb-10">
@@ -159,7 +143,6 @@ function Home() {
               >
                 Tất cả sản phẩm 
               </Link>
-
               <Link
                 to="/"
                 className="px-[10px] py-[12px] text-[13px] font-semibold text-[#333] hover:text-[#d70018] whitespace-nowrap transition-colors"
@@ -176,9 +159,6 @@ function Home() {
                 </Link>
               ))}
               {/* <Link
-              
-              <Link
->>>>>>> 5a5aa20b765cd19fcdc781ec6282993bfd684d4a
                 to="/product?category=PC"
                 className="px-[10px] py-[12px] text-[13px] font-semibold text-[#333] hover:text-[#d70018] whitespace-nowrap transition-colors"
               >
@@ -295,18 +275,12 @@ function Home() {
         ) : (
           <>
           
-            {categories.map((cat) => {
-              const filteredProducts = products.filter(
-              (p) => normalizeCategory(p.category_name) === normalizeCategory(cat.category_name)
-                );
-                return (
             <ProductSection
-              title={cat.category_name}
-              key={cat.category_id}
-              products={filteredProducts}
-              category={cat.category_name}
-            />);
-            })}
+              title="Laptop"
+              products={laptopProducts}
+              category="Laptop"
+            />
+            <ProductSection title="PC" products={pcProducts} category="PC" />
           </>
         )}
       </div>

@@ -24,7 +24,7 @@ function Product() {
   const [manualSelectedCategory, setManualSelectedCategory] = useState("");
   const [selectedPriceId, setSelectedPriceId] = useState("all");
   const [searchParams, setSearchParams] = useSearchParams();
-  const queryKey = searchParams.toString();
+
 
   
 
@@ -45,7 +45,7 @@ function Product() {
     setManualSelectedCategory("");
     setSelectedBrands([]);
     setSelectedPriceId("all");
-  }, [queryKey]);
+  }, [querySelectedCategory]); // reset filters khi category trong query thay đổi hoặc khi query string thay đổi (ví dụ khi search) 
 
   const categories = useMemo(
     () => [...new Set(products.map((p) => p.category_name).filter(Boolean))],
