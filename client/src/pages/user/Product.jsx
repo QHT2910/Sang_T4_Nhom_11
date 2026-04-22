@@ -45,8 +45,7 @@ function Product() {
     setManualSelectedCategory("");
     setSelectedBrands([]);
     setSelectedPriceId("all");
-  }, [querySelectedCategory]); // reset filters khi category trong query thay đổi hoặc khi query string thay đổi (ví dụ khi search) 
-
+  }, [searchParams]); 
   const categories = useMemo(
     () => [...new Set(products.map((p) => p.category_name).filter(Boolean))],
     [products]
