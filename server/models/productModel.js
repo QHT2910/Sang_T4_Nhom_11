@@ -7,7 +7,11 @@ class Product {
     this.price = product.price;
     this.stock = product.stock;
     this.image = product.image;
-this.image_url = product.image_url
+    this.image_url = product.image_url;
+    this.brand = product.brand;
+    this.tag = product.tag;
+    this.category = product.category;
+    this.category_name = product.category_name; 
   }
 }
 

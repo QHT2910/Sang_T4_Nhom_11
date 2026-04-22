@@ -1,9 +1,7 @@
+import { Navigate } from "react-router-dom";
+
 function Pc() {
-  return (
-    <div>
-      <h1>PC Page</h1>
-      <p>This is the PC page content.</p>
-    </div>
-  );
+  return <Navigate to="/product?category=PC" replace />;
 }
+
 export default Pc;
