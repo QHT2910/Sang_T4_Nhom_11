@@ -45,9 +45,7 @@ export const router = createBrowserRouter([
       { path: "/chinhsach", element: <ChinhSach /> },
       { path: "/Cart", element: <Cart /> },
       {path: "/tracking", element: <Tracking />},
-      {path: "/userinfo", element:(
-        <ProtectedRoute><UserInfo /></ProtectedRoute>)
-         }
+      {path: "/userinfo", element:(<ProtectedRoute><UserInfo /></ProtectedRoute>)},
     ],
   },
   {
