@@ -14,14 +14,20 @@ import {
   X,
 } from "lucide-react";
 
+const ORDER_STATUSES = ["chuaxuly", "dangxuly", "danggiao", "Dagiao", "dahuy"];
+
 const getOrderId = (order) => order.order_id || order.id;
 const getOrderDate = (order) => order.order_date || order.created_at;
 const getOrderItems = (order) => order.order_items || order.items || [];
 const getOrderTotal = (order) =>
   Number(order.total || order.total_amount || order.total_price || 0);
 const getOrderStatus = (order) => {
-  if (typeof order.status === "string") return order.status;
-  return order.status ? "delivered" : "pending";
+  if (typeof order?.status !== "string") {
+    return "chuaxuly";
+  }
+
+  const trimmed = order.status.trim();
+  return ORDER_STATUSES.includes(trimmed) ? trimmed : "chuaxuly";
 };
 
 function Tracking() {
@@ -59,7 +65,7 @@ function Tracking() {
       });
       setOrders(sortedOrders);
     } catch (err) {
-      console.error("Lỗi tải đơn hàng:", err);
+      console.error("Loi tai don hang:", err);
     } finally {
       setLoading(false);
     }
@@ -70,27 +76,27 @@ function Tracking() {
   }, [currentUser?.id, currentUser?.user_id]);
 
   const statusConfig = {
-    pending: {
-      label: "Cho xu ly",
+    chuaxuly: {
+      label: "Chua xu ly",
       color: "text-yellow-600 bg-yellow-50 border-yellow-100",
       icon: <Clock size={16} />,
     },
-    processing: {
-      label: "Đang chuẩn bị",
+    dangxuly: {
+      label: "Dang xu ly",
       color: "text-blue-600 bg-blue-50 border-blue-100",
       icon: <Package size={16} />,
     },
-    shipping: {
-      label: "Đang giao hàng",
+    danggiao: {
+      label: "Dang giao",
       color: "text-purple-600 bg-purple-50 border-purple-100",
       icon: <Truck size={16} />,
     },
-    delivered: {
-      label: "Da hoan thanh",
+    Dagiao: {
+      label: "Da giao",
       color: "text-green-600 bg-green-50 border-green-100",
       icon: <CheckCircle size={16} />,
     },
-    deleted: {
+    dahuy: {
       label: "Da huy",
       color: "text-red-600 bg-red-50 border-red-100",
       icon: <XCircle size={16} />,
@@ -122,7 +128,7 @@ function Tracking() {
     setIsCancelling(true);
     try {
       await orderApi.updateOrderStatus(getOrderId(cancelOrder), {
-        status: "deleted",
+        status: "dahuy",
         reason: cancelReason.trim(),
         cancel_reason: cancelReason.trim(),
       });
@@ -130,7 +136,7 @@ function Tracking() {
       await fetchOrders();
       alert("Da huy don hang.");
     } catch (error) {
-      console.error("Lỗi khi hủy đơn:", error);
+      console.error("Loi khi huy don:", error);
       alert(
         error?.response?.data?.message ||
           error?.response?.data?.detail ||
@@ -165,7 +171,7 @@ function Tracking() {
           <ShoppingBag size={64} className="mx-auto mb-4 text-gray-200" />
           <h3 className="text-xl font-bold text-gray-800">Chua co don hang</h3>
           <p className="mb-6 mt-2 text-gray-500">
-            Chưa thực hiện giao dịch nào.
+            Chua thuc hien giao dich nao.
           </p>
           <a
             href="/product"
@@ -181,10 +187,10 @@ function Tracking() {
             const orderDate = getOrderDate(order);
             const orderItems = getOrderItems(order);
             const statusKey = getOrderStatus(order);
-            const status = statusConfig[statusKey] || statusConfig.pending;
+            const status = statusConfig[statusKey] || statusConfig.chuaxuly;
             const isExpanded = expandedOrder === orderId;
             const canCancel =
-              statusKey === "pending" || statusKey === "processing";
+              statusKey === "chuaxuly" || statusKey === "dangxuly";
 
             return (
               <div
