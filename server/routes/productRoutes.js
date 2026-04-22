@@ -1,13 +1,13 @@
 import express from "express";
 import { getProducts, getProductById,updateProduct,createProduct,deleteProduct,getCategories } from "../controllers/productController.js";
-import { authMiddleware } from "../middleware/authMiddleware.js";
+import { authMiddleware, requireRoles } from "../middleware/authMiddleware.js";
 import multer from "multer";
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 router.get("/products", getProducts);
 router.get("/products/:id", getProductById);
-router.post("/products", authMiddleware,upload.single("image"), createProduct);
-router.patch("/products/:id", authMiddleware, upload.single("image"), updateProduct);
-router.delete("/products/:id", authMiddleware, deleteProduct);
+router.post("/products", authMiddleware, requireRoles("admin", "superadmin"), upload.single("image"), createProduct);
+router.patch("/products/:id", authMiddleware, requireRoles("admin", "superadmin"), upload.single("image"), updateProduct);
+router.delete("/products/:id", authMiddleware, requireRoles("admin", "superadmin"), deleteProduct);
 router.get("/categories", getCategories);
 export default router;

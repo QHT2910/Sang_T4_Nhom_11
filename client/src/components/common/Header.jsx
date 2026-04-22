@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import logoimg from "../../assets/images/logo.png";
 import orderApi from "../../services/orderServices";
 
@@ -17,7 +17,8 @@ function getCartCount() {
 
 function Header() {
   const navigate = useNavigate();
-const [searchTerm, setSearchTerm] = useState("");
+  const location = useLocation();
+  const [searchTerm, setSearchTerm] = useState("");
   const token = localStorage.getItem("token");
   const storedRole = localStorage.getItem("role") || "user";
   const [isOpen, setIsOpen] = useState(false);
@@ -36,14 +37,31 @@ const [searchTerm, setSearchTerm] = useState("");
     console.error("Failed to parse user data from localStorage", err);
   }
 
-  // Trong Header.jsx
-const handleSearch = (e) => {
-  e.preventDefault();
-  if (searchTerm.trim()) {
-    navigate(`/product?search=${encodeURIComponent(searchTerm.trim())}`);
-    setSearchTerm(""); 
-  }
-};
+  const currentSearch = useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get("search") || "";
+  }, [location.search]);
+
+  useEffect(() => {
+    if (location.pathname === "/product") {
+      setSearchTerm(currentSearch);
+      return;
+    }
+
+    setSearchTerm("");
+  }, [currentSearch, location.pathname]);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    const normalizedSearch = searchTerm.trim();
+
+    if (!normalizedSearch) {
+      navigate("/product");
+      return;
+    }
+
+    navigate(`/product?search=${encodeURIComponent(normalizedSearch)}`);
+  };
   const isAuthed = Boolean(token);
   const isAdmin =
     storedRole === "admin" ||

@@ -11,7 +11,6 @@ export function ProductDetail() {
   const [mainImage, setMainImage] = useState("");
   const [quantity, setQuantity] = useState(1);
 
-  // 1. Gọi API lấy dữ liệu thực tế
   useEffect(() => {
     const fetchProduct = async () => {
       setLoading(true);
@@ -20,7 +19,6 @@ export function ProductDetail() {
         const data = res.data;
         
         setProduct(data);
-        // Ưu tiên lấy image từ API, nếu không có thì dùng placeholder
         setMainImage(data.image || "https://via.placeholder.com/400"); 
         setLoading(false);
       } catch (error) {
@@ -31,12 +29,10 @@ export function ProductDetail() {
     if (id) fetchProduct();
   }, [id]);
 
-  // Hàm dùng chung để lưu sản phẩm vào localStorage
   const saveToCart = () => {
     if (!product) return;
 
     const cartItem = {
-      // Sử dụng product_id hoặc id tùy theo cách Backend trả về
       id: product.id || product.product_id, 
       name: product.name,
       price: product.price,
@@ -56,25 +52,21 @@ export function ProductDetail() {
 
     localStorage.setItem("cart", JSON.stringify(existingCart));
     
-    // Kích hoạt sự kiện để Header/Cart cập nhật số lượng
     window.dispatchEvent(new Event("cartChange"));
   };
 
-  // 2. Logic xử lý Thêm vào giỏ hàng
   const handleAddToCart = (e) => {
     e.preventDefault();
     saveToCart();
     alert(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
   };
 
-  // 3. Logic xử lý Mua ngay (Lưu vào giỏ và chuyển trang)
   const handleBuyNow = (e) => {
     e.preventDefault();
     saveToCart();
-    navigate("/pay"); // Chuyển hướng sang trang thanh toán
+    navigate("/pay"); 
   };
 
-  // 4. Xử lý trạng thái đang tải
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-gray-500">
@@ -84,7 +76,6 @@ export function ProductDetail() {
     );
   }
 
-  // 5. Xử lý nếu không tìm thấy sản phẩm
   if (!product) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center text-red-600">
@@ -97,7 +88,6 @@ export function ProductDetail() {
   return (
     <div className="bg-[#f5f5f5] pb-12 pt-6 min-h-screen">
       <div className="max-w-[1200px] mx-auto px-4">
-        {/* BREADCRUMB */}
         <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
           <Link to="/" className="hover:text-blue-600 transition-colors">Trang chủ</Link>
           <span>/</span>
@@ -107,7 +97,6 @@ export function ProductDetail() {
         </div>
 
         <div className="bg-white rounded-xl shadow-sm p-6 grid grid-cols-1 md:grid-cols-2 gap-10 mb-8 border border-gray-100">
-          {/* CỘT TRÁI: Hình ảnh */}
           <div className="flex flex-col gap-4">
             <div className="w-full aspect-[4/3] bg-gray-50 border border-gray-200 rounded-lg overflow-hidden flex items-center justify-center p-4">
               <img 
@@ -118,7 +107,6 @@ export function ProductDetail() {
             </div>
           </div>
 
-          {/* CỘT PHẢI: Thông tin */}
           <div className="flex flex-col">
             <h1 className="text-2xl font-bold text-gray-900 leading-snug mb-3">{product?.name}</h1>
             
