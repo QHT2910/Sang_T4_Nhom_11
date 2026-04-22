@@ -102,6 +102,7 @@ function ThanhToan() {
       setCartItems([]);
       localStorage.removeItem("cart");
       window.dispatchEvent(new Event("cartChange"));
+      window.dispatchEvent(new Event("orderChange"));
 
       const newOrderId = response.data?.order_id || response.data?.id || "";
       navigate(`/tracking${newOrderId ? `?orderId=${newOrderId}` : ""}`);
