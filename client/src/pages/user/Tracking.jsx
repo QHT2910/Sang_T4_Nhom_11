@@ -22,12 +22,8 @@ const getOrderItems = (order) => order.order_items || order.items || [];
 const getOrderTotal = (order) =>
   Number(order.total || order.total_amount || order.total_price || 0);
 const getOrderStatus = (order) => {
-  if (typeof order?.status !== "string") {
-    return "chuaxuly";
-  }
-
-  const trimmed = order.status.trim();
-  return ORDER_STATUSES.includes(trimmed) ? trimmed : "chuaxuly";
+  if (typeof order.status === "string") return order.status;
+  return order.status ? "Dagiao" : "chuaxuly";
 };
 
 function Tracking() {
@@ -77,22 +73,22 @@ function Tracking() {
 
   const statusConfig = {
     chuaxuly: {
-      label: "Chua xu ly",
+      label: "Cho xu ly",
       color: "text-yellow-600 bg-yellow-50 border-yellow-100",
       icon: <Clock size={16} />,
     },
     dangxuly: {
-      label: "Dang xu ly",
+      label: "Đang chuẩn bị",
       color: "text-blue-600 bg-blue-50 border-blue-100",
       icon: <Package size={16} />,
     },
     danggiao: {
-      label: "Dang giao",
+      label: "Đang giao hàng",
       color: "text-purple-600 bg-purple-50 border-purple-100",
       icon: <Truck size={16} />,
     },
     Dagiao: {
-      label: "Da giao",
+      label: "Da hoan thanh",
       color: "text-green-600 bg-green-50 border-green-100",
       icon: <CheckCircle size={16} />,
     },

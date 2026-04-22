@@ -7,7 +7,6 @@ function UserInfo() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-12 min-h-screen bg-gray-50">
       <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 flex flex-col md:flex-row">
-        {/* Cột trái: Avatar & Role */}
         <div className="bg-gradient-to-br from-indigo-600 to-purple-700 p-10 text-white flex flex-col items-center justify-center md:w-1/3">
            <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center text-4xl font-bold mb-4 backdrop-blur-sm border-2 border-white/30">
              {user.username?.charAt(0).toUpperCase() || "U"}
@@ -18,7 +17,6 @@ function UserInfo() {
            </span>
         </div>
 
-        {/* Cột phải: Details */}
         <div className="p-10 flex-1">
            <h3 className="text-2xl font-bold text-gray-800 mb-8 border-b pb-4">Thông tin cá nhân</h3>
            <div className="space-y-6">

@@ -50,6 +50,7 @@ function UserTable({
   users,
   onEdit,
   onDelete,
+  canEditUser,
   canDeleteUser,
   emptyText,
 }) {
@@ -74,6 +75,7 @@ function UserTable({
           users.map((user) => {
             const role = getRole(user);
             const roleInfo = roleMeta[role];
+            const canEdit = canEditUser ? canEditUser(user) : true;
             const canDelete = canDeleteUser ? canDeleteUser(user) : false;
 
             return (
@@ -129,9 +131,14 @@ function UserTable({
 
                 <div className="flex flex-wrap items-center gap-2 lg:justify-end">
                   <button
-                    className="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+                    className={`rounded-2xl border px-4 py-2.5 text-sm font-semibold transition ${
+                      canEdit
+                        ? "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+                        : "cursor-not-allowed border-slate-100 bg-slate-100 text-slate-400"
+                    }`}
                     type="button"
                     onClick={() => onEdit(user)}
+                    disabled={!canEdit}
                   >
                     Chỉnh sửa
                   </button>
@@ -189,6 +196,7 @@ export default function AdminUsers() {
     : storedUser?.is_staff || localStorage.getItem("role") === "admin"
       ? "admin"
       : localStorage.getItem("role") || "user";
+  const canManageSuperadmin = currentRole === "superadmin";
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -232,6 +240,11 @@ export default function AdminUsers() {
   };
 
   const startEdit = (user) => {
+    if (!canEditUser(user)) {
+      setError("Chi superadmin moi co the sua tai khoan superadmin.");
+      return;
+    }
+
     setEditingId(user.user_id || user.id);
     setEditingUser(user);
     setFormData(getUserFormData(user));
@@ -247,8 +260,11 @@ export default function AdminUsers() {
     setFormData(emptyForm);
   };
 
+  const canEditUser = (user) =>
+    canManageSuperadmin || getRole(user) !== "superadmin";
+
   const canDeleteUser = (user) =>
-    currentRole === "superadmin" && getRole(user) !== "superadmin";
+    canManageSuperadmin && getRole(user) !== "superadmin";
 
   const handleDelete = async (user) => {
     if (!canDeleteUser(user)) {
@@ -279,11 +295,23 @@ export default function AdminUsers() {
     setError("");
 
     try {
+      if (!canManageSuperadmin && formData.role === "superadmin") {
+        setError("Chi superadmin moi co the cap quyen superadmin.");
+        return;
+      }
+
+      if (!canManageSuperadmin && editingUser && getRole(editingUser) === "superadmin") {
+        setError("Chi superadmin moi co the sua tai khoan superadmin.");
+        return;
+      }
+
       const payload = {
         username: formData.username,
         email: formData.email,
-        is_superuser: formData.role === "superadmin",
-        is_staff: formData.role === "admin",
+        is_superuser: canManageSuperadmin && formData.role === "superadmin",
+        is_staff:
+          formData.role === "admin" ||
+          (canManageSuperadmin && formData.role === "superadmin"),
       };
 
       if (formData.password) {
@@ -448,7 +476,9 @@ export default function AdminUsers() {
               >
                 <option value="user">Người dùng</option>
                 <option value="admin">Staff</option>
-                <option value="superadmin">Super Admin</option>
+                {canManageSuperadmin && (
+                  <option value="superadmin">Super Admin</option>
+                )}
               </select>
               </label>
 
@@ -562,6 +592,7 @@ export default function AdminUsers() {
           description="Tài khoản có quyền, quản lý và cần được theo dõi chặt chẽ."
           users={adminAccounts}
           onEdit={startEdit}
+          canEditUser={canEditUser}
           onDelete={currentRole === "superadmin" ? handleDelete : null}
           canDeleteUser={canDeleteUser}
           emptyText={
@@ -573,6 +604,7 @@ export default function AdminUsers() {
           description="Danh sách tài khoản khách hàng và tài khoản thường trong hệ thống."
           users={userAccounts}
           onEdit={startEdit}
+          canEditUser={canEditUser}
           onDelete={currentRole === "superadmin" ? handleDelete : null}
           canDeleteUser={canDeleteUser}
           emptyText={

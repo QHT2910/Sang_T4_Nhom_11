@@ -36,3 +36,21 @@ export const authMiddleware = (req, res, next) => {
     });
   }
 };
+
+export const requireRoles = (...allowedRoles) => {
+  const normalizedRoles = allowedRoles.flat().filter(Boolean);
+
+  return (req, res, next) => {
+    const userRole = req.user?.role;
+
+    if (!userRole) {
+      return res.status(403).json({ message: "Ban khong co quyen truy cap" });
+    }
+
+    if (!normalizedRoles.includes(userRole)) {
+      return res.status(403).json({ message: "Ban khong duoc phep thuc hien thao tac nay" });
+    }
+
+    next();
+  };
+};

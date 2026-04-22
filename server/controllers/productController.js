@@ -6,6 +6,16 @@ const NGROK_HEADERS = { "ngrok-skip-browser-warning": "true" };
 const BASE_URL = "https://plumiest-procivic-jules.ngrok-free.dev/api/products/";
 const CAT_URL = "https://plumiest-procivic-jules.ngrok-free.dev/api/category";
 
+const buildHeaders = (req, headers = {}) => {
+  const authHeader = req?.headers?.authorization;
+
+  return {
+    ...headers,
+    ...NGROK_HEADERS,
+    ...(authHeader ? { Authorization: authHeader } : {}),
+  };
+};
+
 // 1. Lấy danh sách sản phẩm
 export const getProducts = async (req, res) => {
   try {
@@ -55,7 +65,7 @@ export const createProduct = async (req, res) => {
     }
 
     const response = await axios.post(BASE_URL, form, {
-      headers: { ...form.getHeaders(), ...NGROK_HEADERS },
+      headers: buildHeaders(req, form.getHeaders()),
     });
     res.status(201).json(response.data);
   } catch (error) {
@@ -97,7 +107,7 @@ export const updateProduct = async (req, res) => {
     }
 
     const response = await axios.patch(`${BASE_URL}${id}/`, form, {
-      headers: { ...form.getHeaders(), ...NGROK_HEADERS },
+      headers: buildHeaders(req, form.getHeaders()),
     });
     res.json(new Product(response.data));
   } catch (error) {
@@ -110,7 +120,7 @@ export const updateProduct = async (req, res) => {
 export const deleteProduct = async (req, res) => {
   const { id } = req.params;
   try {
-    await axios.delete(`${BASE_URL}${id}/`, { headers: NGROK_HEADERS });
+    await axios.delete(`${BASE_URL}${id}/`, { headers: buildHeaders(req) });
     res.json({ message: "Product deleted" });
   } catch (error) {
     res.status(500).json({ message: "Error deleting product" });

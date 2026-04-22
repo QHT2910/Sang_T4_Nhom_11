@@ -17,21 +17,13 @@ const statusColors = {
   dahuy: "bg-red-100 text-red-700 border-red-200",
 };
 
-const statusLabels = {
-  chuaxuly: "Chưa xử lý",
-  dangxuly: "Đang xử lý",
-  danggiao: "Đang giao",
-  Dagiao: "Đã giao",
-  dahuy: "Đã hủy",
-};
-
-const ORDER_STATUSES = ["chuaxuly", "dangxuly", "danggiao", "Dagiao", "dahuy"];
-
-const normalizeOrderStatus = (value) => {
-  if (typeof value !== "string") return "chuaxuly";
-  const trimmed = value.trim();
-  return ORDER_STATUSES.includes(trimmed) ? trimmed : "chuaxuly";
-};
+const statusOptions = [
+  { value: "chuaxuly", label: "Cho xu ly" },
+  { value: "dangxuly", label: "Dang chuan bi" },
+  { value: "danggiao", label: "Dang giao" },
+  { value: "Dagiao", label: "Da giao" },
+  { value: "dahuy", label: "Da huy" },
+];
 
 const getOrderId = (order) => order?.id || order?.order_id || "";
 const getOrderCustomerName = (order) =>
@@ -47,6 +39,7 @@ const getOrderDate = (order) =>
 const getOrderTotal = (order) =>
   Number(order?.total ?? order?.total_amount ?? order?.total_price ?? 0);
 const getOrderItems = (order) => order?.items || order?.order_items || [];
+const getOrderStatus = (order) => String(order?.status || "").trim() || "chuaxuly";
 
 function formatOrderDate(value) {
   if (!value) return "--";
@@ -78,7 +71,7 @@ function AdminOrder() {
 
   const filteredOrders = orders.filter((order) => {
     if (filterStatus === "all") return true;
-    return normalizeOrderStatus(order.status) === filterStatus;
+    return getOrderStatus(order) === filterStatus;
   });
 
   const handleUpdateStatus = async (id, newStatus) => {
@@ -88,7 +81,7 @@ function AdminOrder() {
       fetchOrders();
     } catch (error) {
       console.error("Loi khi cap nhat trang thai:", error);
-      alert(error?.response?.data?.status?.[0] || "Loi khi cap nhat trang thai");
+      alert("Loi khi cap nhat trang thai");
     }
   };
 
@@ -134,12 +127,12 @@ function AdminOrder() {
                 onChange={(e) => setFilterStatus(e.target.value)}
                 className="rounded-xl border border-gray-200 bg-white py-2 pl-10 pr-4 text-sm font-bold outline-none transition-all focus:ring-2 focus:ring-red-500"
               >
-                <option value="all">Tất cả trạng thái</option>
-                <option value="chuaxuly">{statusLabels.chuaxuly}</option>
-                <option value="dangxuly">{statusLabels.dangxuly}</option>
-                <option value="danggiao">{statusLabels.danggiao}</option>
-                <option value="Dagiao">{statusLabels.Dagiao}</option>
-                <option value="dahuy">{statusLabels.dahuy}</option>
+                <option value="all">Tat ca trang thai</option>
+                {statusOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -172,68 +165,72 @@ function AdminOrder() {
               </thead>
               <tbody className="divide-y divide-gray-50">
                 {filteredOrders.length > 0 ? (
-                  filteredOrders.map((order) => (
-                    <tr
-                      key={getOrderId(order)}
-                      className="group transition-colors hover:bg-gray-50/30"
-                    >
-                      <td className="p-5 font-mono text-sm font-bold text-red-600">
-                        #{getOrderId(order)}
-                      </td>
-                      <td className="p-5">
-                        <div className="text-sm font-bold text-gray-800">
-                          {getOrderCustomerName(order)}
-                        </div>
-                        <div className="text-[10px] font-medium text-gray-400">
-                          {getOrderPhone(order)}
-                        </div>
-                      </td>
-                      <td className="p-5 text-xs font-medium text-gray-500">
-                        {formatOrderDate(getOrderDate(order))}
-                      </td>
-                      <td className="p-5">
-                        <p className="text-2xl font-black text-red-600">
-                          {getOrderTotal(order).toLocaleString("vi-VN")} d
-                        </p>
-                      </td>
-                      <td className="p-5">
-                        <div className="flex justify-center">
-                          <select
-                            value={normalizeOrderStatus(order.status)}
-                            onChange={(e) =>
-                              handleUpdateStatus(getOrderId(order), e.target.value)
-                            }
-                            disabled={normalizeOrderStatus(order.status) === "dahuy"}
-                            className={`cursor-pointer rounded-full border border-transparent px-3 py-1.5 text-[10px] font-black uppercase outline-none transition-all ${statusColors[normalizeOrderStatus(order.status)] || "bg-slate-100 text-slate-700 border-slate-200"}`}
-                          >
-                            <option value="chuaxuly">{statusLabels.chuaxuly}</option>
-                            <option value="dangxuly">{statusLabels.dangxuly}</option>
-                            <option value="danggiao">{statusLabels.danggiao}</option>
-                            <option value="Dagiao">{statusLabels.Dagiao}</option>
-                            <option value="dahuy">{statusLabels.dahuy}</option>
-                          </select>
-                        </div>
-                      </td>
-                      <td className="p-5 text-center">
-                        <div className="flex justify-center gap-2">
-                          <button
-                            onClick={() => setSelectedOrder(order)}
-                            className="rounded-lg p-2 text-blue-500 transition-colors hover:bg-blue-50"
-                            title="Xem chi tiet"
-                          >
-                            <Eye size={18} />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(getOrderId(order))}
-                            className="rounded-lg p-2 text-red-400 transition-colors hover:bg-red-50"
-                            title="Xoa don"
-                          >
-                            <Trash2 size={18} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
+                  filteredOrders.map((order) => {
+                    const orderStatus = getOrderStatus(order);
+
+                    return (
+                      <tr
+                        key={getOrderId(order)}
+                        className="group transition-colors hover:bg-gray-50/30"
+                      >
+                        <td className="p-5 font-mono text-sm font-bold text-red-600">
+                          #{getOrderId(order)}
+                        </td>
+                        <td className="p-5">
+                          <div className="text-sm font-bold text-gray-800">
+                            {getOrderCustomerName(order)}
+                          </div>
+                          <div className="text-[10px] font-medium text-gray-400">
+                            {getOrderPhone(order)}
+                          </div>
+                        </td>
+                        <td className="p-5 text-xs font-medium text-gray-500">
+                          {formatOrderDate(getOrderDate(order))}
+                        </td>
+                        <td className="p-5">
+                          <p className="text-2xl font-black text-red-600">
+                            {getOrderTotal(order).toLocaleString("vi-VN")} d
+                          </p>
+                        </td>
+                        <td className="p-5">
+                          <div className="flex justify-center">
+                            <select
+                              value={orderStatus}
+                              onChange={(e) =>
+                                handleUpdateStatus(getOrderId(order), e.target.value)
+                              }
+                              disabled={orderStatus === "dahuy"}
+                              className={`cursor-pointer rounded-full border border-transparent px-3 py-1.5 text-[10px] font-black uppercase outline-none transition-all ${statusColors[orderStatus] || "bg-slate-100 text-slate-700 border-slate-200"}`}
+                            >
+                              {statusOptions.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                  {option.label}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </td>
+                        <td className="p-5 text-center">
+                          <div className="flex justify-center gap-2">
+                            <button
+                              onClick={() => setSelectedOrder(order)}
+                              className="rounded-lg p-2 text-blue-500 transition-colors hover:bg-blue-50"
+                              title="Xem chi tiet"
+                            >
+                              <Eye size={18} />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(getOrderId(order))}
+                              className="rounded-lg p-2 text-red-400 transition-colors hover:bg-red-50"
+                              title="Xoa don"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
                 ) : (
                   <tr>
                     <td
@@ -330,7 +327,7 @@ function AdminOrder() {
                   ))
                 ) : (
                   <div className="rounded-2xl border border-dashed border-gray-200 p-5 text-sm text-gray-400">
-                    Không có chi tiết sản phẩm.
+                    Khong co chi tiet san pham.
                   </div>
                 )}
               </div>

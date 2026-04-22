@@ -96,7 +96,11 @@ function Home() {
     () =>
       products.filter((product) => {
         const category = normalizeCategory(product.category_name);
-        return category === "pc" || category === "may tinh";
+        return (
+          category === "pc" ||
+          category === "may tinh" ||
+          category === "máy tính"
+        );
       }),
     [products]
   );
@@ -126,12 +130,7 @@ function Home() {
               >
                 Tất cả sản phẩm 
               </Link>
-              <Link
-                to="/"
-                className="px-[10px] py-[12px] text-[13px] font-semibold text-[#333] hover:text-[#d70018] whitespace-nowrap transition-colors"
-              >
-                Hot Deal
-              </Link>
+              
               <Link
                 to="/product?category=PC"
                 className="px-[10px] py-[12px] text-[13px] font-semibold text-[#333] hover:text-[#d70018] whitespace-nowrap transition-colors"

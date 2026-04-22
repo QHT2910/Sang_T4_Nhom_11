@@ -11,10 +11,18 @@ const api = axios.create({
 });
 const listUrl = () => "/";
 const detailUrl = (userId) => `/${userId}/`;
+const buildConfig = (req) => ({
+  headers: {
+    "ngrok-skip-browser-warning": "true",
+    ...(req?.headers?.authorization
+      ? { Authorization: req.headers.authorization }
+      : {}),
+  },
+});
 
 export const getUsers = async (req, res) => {
   try {
-    const response = await api.get(listUrl());
+    const response = await api.get(listUrl(), buildConfig(req));
     const users = response.data.map((u) => new User(u));
     res.json(users);
   } catch (error) {
@@ -27,7 +35,7 @@ export const getUsers = async (req, res) => {
 
 export const createUser = async (req, res) => {
   try {
-    const response = await api.post(listUrl(), req.body);
+    const response = await api.post(listUrl(), req.body, buildConfig(req));
     const user = new User(response.data);
     res.status(201).json(user);
   } catch (error) {
@@ -44,7 +52,7 @@ export const updateUser = async (req, res) => {
     return res.status(400).json({ message: "Missing user id" });
   }
   try {
-    const response = await api.patch(detailUrl(id), req.body);
+    const response = await api.patch(detailUrl(id), req.body, buildConfig(req));
     const user = new User(response.data);
     res.json(user);
   } catch (error) {
@@ -66,10 +74,10 @@ export const deleteUser = async (req, res) => {
       return res.status(403).json({ message: "Missing role" });
     }
 
-    const targetResponse = await api.get(detailUrl(id));
+    const targetResponse = await api.get(detailUrl(id), buildConfig(req));
     const targetUser = targetResponse.data;
     const isProtectedTarget =
-      targetUser?.is_staff === true || targetUser?.is_active === true;
+      targetUser?.is_staff === true || targetUser?.is_superuser === true;
 
     if (isProtectedTarget && requesterRole !== "superadmin") {
       return res.status(403).json({
@@ -78,7 +86,7 @@ export const deleteUser = async (req, res) => {
       });
     }
 
-    await api.delete(detailUrl(id));
+    await api.delete(detailUrl(id), buildConfig(req));
     res.status(204).send();
   } catch (error) {
     const status = error?.response?.status || 500;
