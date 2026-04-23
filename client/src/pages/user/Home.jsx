@@ -274,18 +274,27 @@ function Home() {
           <div className="text-center p-10 text-red-500">{error}</div>
         ) : (
           <>
-          
-            <ProductSection
-              title="Laptop"
-              products={laptopProducts}
-              category="Laptop"
-            />
-            <ProductSection title="PC" products={pcProducts} category="PC" />
+            {categories.map((category) => {
+              const filteredProducts = products.filter(
+                (product) =>
+                  normalizeCategory(product.category_name) ===
+                  normalizeCategory(category.category_name)
+              );
+
+              return (
+                <ProductSection
+                  key={category.category_id || category.category_name}
+                  title={category.category_name}
+                  products={filteredProducts}
+                  category={category.category_name}
+                />
+              );
+            })}
           </>
         )}
       </div>
+
     </main>
   );
 }
-
 export default Home;
