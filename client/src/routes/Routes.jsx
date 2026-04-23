@@ -44,10 +44,14 @@ export const router = createBrowserRouter([
       { path: "/pay", element: <ProtectedRoute><ThanhToan /></ProtectedRoute> },
       { path: "/chinhsach", element: <ChinhSach /> },
       { path: "/Cart", element: <Cart /> },
+
+      {path: "/tracking", element: <Tracking />},
+      {path: "/userinfo", element:(<ProtectedRoute><UserInfo /></ProtectedRoute>)},
       {path: "/tracking", element: <ProtectedRoute><Tracking /></ProtectedRoute>},
       {path: "/userinfo", element:(
         <ProtectedRoute><UserInfo /></ProtectedRoute>)
          }
+
     ],
   },
   {

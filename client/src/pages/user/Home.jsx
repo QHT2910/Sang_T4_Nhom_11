@@ -10,7 +10,11 @@ import baner1 from "../../assets/images/banerminh3.png";
 import baner2 from "../../assets/images/banermini4.png";
 import baner3 from "../../assets/images/banermini5.png";
 import banerngang from "../../assets/images/banerdocdai1.png";
-import banerngang2 from "../../assets/images/banerdocdai2.png";
+import banerngang2 from "../../assets/images/banerdocdai2.png"; 
+import CategoryApi from "../../services/categoryServices.js";
+
+//vi du goi trong compose
+
 
 const normalizeCategory = (value) => String(value || "").trim().toLowerCase();
 const getProductId = (product) => product?.id || product?.product_id;
@@ -67,6 +71,7 @@ function Home() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [categories, setCategories] = useState([]); // Thêm state cho categories
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -84,26 +89,34 @@ function Home() {
     loadProducts();
   }, []);
 
+  useEffect(() =>{ // Tải danh mục khi component Home được mount
+    const fetchCategories = async () =>{
+      try {
+        const res = await CategoryApi.getCategories();
+        setCategories(Array.isArray(res.data) ? res.data : []);
+      } catch (err) {
+        console.error("Không tải được danh mục:", err);
+      }
+    }
+    fetchCategories();
+  }, [] );
+
   const laptopProducts = useMemo(
-    () =>
-      products.filter(
-        (product) => normalizeCategory(product.category_name) === "laptop"
-      ),
-    [products]
-  );
+     () =>
+       products.filter(
+         (product) => normalizeCategory(product.category_name) === "laptop"
+       ),
+     [products]
+   );
 
   const pcProducts = useMemo(
-    () =>
-      products.filter((product) => {
+     () =>
+       products.filter((product) => {
         const category = normalizeCategory(product.category_name);
-        return (
-          category === "pc" ||
-          category === "may tinh" ||
-          category === "máy tính"
-        );
+        return category === "pc" || category === "may tinh";
       }),
     [products]
-  );
+   );
 
   return (
     <main className="bg-[#f5f5f5] pb-10">
@@ -130,19 +143,34 @@ function Home() {
               >
                 Tất cả sản phẩm 
               </Link>
-              
               <Link
+                to="/"
+                className="px-[10px] py-[12px] text-[13px] font-semibold text-[#333] hover:text-[#d70018] whitespace-nowrap transition-colors"
+              >
+                Hot Deal
+              </Link>
+              {categories.map((category) => (
+                <Link
+                  key={category.category_id}
+                  to={`/product?category=${encodeURIComponent(category.category_name)}`}
+                  className="px-[10px] py-[12px] text-[13px] font-semibold text-[#333] hover:text-[#d70018] whitespace-nowrap transition-colors"
+                >
+                  {category.category_name}
+                </Link>
+              ))}
+              {/* <Link
                 to="/product?category=PC"
                 className="px-[10px] py-[12px] text-[13px] font-semibold text-[#333] hover:text-[#d70018] whitespace-nowrap transition-colors"
               >
                 Pc/Máy tính
-              </Link>
-              <Link
+              </Link> */}
+              {/* <Link
                 to="/product?category=Laptop"
                 className="px-[10px] py-[12px] text-[13px] font-semibold text-[#333] hover:text-[#d70018] whitespace-nowrap transition-colors"
               >
                 Laptop
               </Link>
+               */}
             </div>
 
             <div className="grid grid-cols-[2.2fr_1fr] gap-[10px] h-[380px]">
@@ -246,17 +274,27 @@ function Home() {
           <div className="text-center p-10 text-red-500">{error}</div>
         ) : (
           <>
-            <ProductSection
-              title="Laptop"
-              products={laptopProducts}
-              category="Laptop"
-            />
-            <ProductSection title="PC" products={pcProducts} category="PC" />
+            {categories.map((category) => {
+              const filteredProducts = products.filter(
+                (product) =>
+                  normalizeCategory(product.category_name) ===
+                  normalizeCategory(category.category_name)
+              );
+
+              return (
+                <ProductSection
+                  key={category.category_id || category.category_name}
+                  title={category.category_name}
+                  products={filteredProducts}
+                  category={category.category_name}
+                />
+              );
+            })}
           </>
         )}
       </div>
+
     </main>
   );
 }
-
 export default Home;

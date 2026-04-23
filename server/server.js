@@ -14,7 +14,7 @@
   app.use(cors({
     origin: ['https://sang-t4-nhom-11.vercel.app', 'http://localhost:5173'],
     methods: ['GET', 'POST', 'PUT','PATCH', 'DELETE', 'OPTIONS'],
-    credentials: true,
+    credentials: true,  
     allowedHeaders: ['Content-Type', 'Authorization', 'ngrok-skip-browser-warning']
 }));
 
